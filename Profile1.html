@@ -269,6 +269,7 @@ if (savedUser) {
         }
 
         loggedInUser = selected;
+        localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
         renderApp();
       };
 
@@ -336,11 +337,6 @@ function logout() {
   localStorage.removeItem('loggedInUser');
   renderApp();
 }
-
-     loggedInUser = selected;
-localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
-      renderApp();
-    }
 
     renderApp();
   </script>
