@@ -23,6 +23,10 @@
 
     let profiles = [];
     let loggedInUser = null;
+    const savedUser = localStorage.getItem('loggedInUser');
+if (savedUser) {
+  loggedInUser = JSON.parse(savedUser);
+}
     let editingProfileId = null;
     const maxProfiles = 20;
     const maxManagers = 2;
@@ -327,8 +331,14 @@
       app.appendChild(grid);
     }
 
-    function logout() {
-      loggedInUser = null;
+function logout() {
+  loggedInUser = null;
+  localStorage.removeItem('loggedInUser');
+  renderApp();
+}
+
+     loggedInUser = selected;
+localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
       renderApp();
     }
 
