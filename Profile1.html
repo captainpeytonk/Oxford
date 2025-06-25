@@ -72,8 +72,6 @@ if (savedUser) {
       createBtn.innerHTML = 'Create Profile';
       createBtn.className = 'bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors';
       createBtn.onclick = () => renderCreateForm();
-      profiles.push(newProfile);
-localStorage.setItem('profiles', JSON.stringify(profiles));
       if (profiles.length >= maxProfiles) createBtn.disabled = true;
 
       const loginBtn = document.createElement('button');
