@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Skills Training</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .total-level {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .total-level h2 {
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .exp-bar {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 25px;
+            height: 30px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .exp-fill {
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 25px;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .skill-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .skill-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: rgba(200, 200, 200, 0.5);
+        }
+
+        .skill-card.locked:hover {
+            transform: none;
+        }
+
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .skill-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .skill-level {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .skill-exp {
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .skill-exp-bar {
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 15px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .skill-exp-fill {
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: transform 0.2s ease;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .skill-detail {
+            display: none;
+        }
+
+        .skill-items {
+            margin-top: 20px;
+        }
+
+        .skill-item {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .skill-item:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+
+        .skill-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .skill-item-name {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .skill-item-exp {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .skill-checkbox {
+            margin-left: 10px;
+            cursor: pointer;
+            transform: scale(1.2);
+        }
+
+        .skill-checkbox:checked {
+            accent-color: #667eea;
+        }
+
+        .skill-checkbox:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: popupScale 0.3s ease;
+        }
+
+        @keyframes popupScale {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .popup h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .popup-close {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .lock-icon {
+            font-size: 2rem;
+            color: #a0aec0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏨 Hotel Skills Training</h1>
+            <p>Master your hospitality skills and advance your career</p>
+        </div>
+
+        <div id="mainPage">
+            <div class="total-level">
+                <h2>Total Level: <span id="totalLevel">0</span></h2>
+                <div class="exp-bar">
+                    <div class="exp-fill" id="totalExpFill" style="width: 0%"></div>
+                </div>
+                <p>Total Experience: <span id="totalExp">0</span></p>
+            </div>
+
+            <div class="skills-grid" id="skillsGrid">
+                <!-- Skills will be generated here -->
+            </div>
+        </div>
+
+        <div id="skillDetail" class="skill-detail">
+            <button class="back-btn" onclick="showMainPage()">← Back to Skills</button>
+            <div class="skill-card">
+                <div class="skill-header">
+                    <h2 class="skill-name" id="detailSkillName"></h2>
+                    <div class="skill-level" id="detailSkillLevel">Level 0</div>
+                </div>
+                <div class="skill-exp">
+                    <div>Experience: <span id="detailSkillExp">0</span> / <span id="detailSkillExpNeeded">50</span></div>
+                    <div class="skill-exp-bar">
+                        <div class="skill-exp-fill" id="detailSkillExpFill" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="skill-items" id="skillItems">
+                    <!-- Skill items will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup" id="levelUpPopup">
+        <div class="popup-content">
+            <h3>🎉 Congratulations!</h3>
+            <p id="levelUpMessage"></p>
+            <button class="popup-close" onclick="closeLevelUpPopup()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // Skill data structure
+        const skillsData = {
+            "Cloudbeds Skills": {
+                level: 0,
+                exp: 0,
+                items: [
+                    { name: "Check someone in", exp: 10, completed: false },
+                    { name: "Make a reservation", exp: 15, completed: false },
+                    { name: "Take a payment", exp: 20, completed: false }
+                ]
+            },
+            "Laundry/Folding": {
+                level: 0,
+                exp: 0,
+                items: [
+                    { name: "Fold bed sheets", exp: 8, completed: false },
+                    { name: "Sort laundry by type", exp: 12, completed: false }
+                ]
+            },
+            "Beds": {
+                level: 0,
+                exp: 0,
+                items: [
+                    { name: "Make a bed properly", exp: 10, completed: false },
+                    { name: "Change pillowcases", exp: 8, completed: false },
+                    { name: "Arrange decorative pillows", exp: 15, completed: false }
+                ]
+            },
+            "Reception": {
+                level: 0,
+                exp: 0,
+                items: [
+                    { name: "Answer phone professionally", exp: 12, completed: false },
+                    { name: "Handle guest complaints", exp: 18, completed: false }
+                ]
+            },
+            "Cleaning": {
+                level: 0,
+                exp: 0,
+                items: [
+                    { name: "Clean bathroom properly", exp: 15, completed: false },
+                    { name: "Vacuum room thoroughly", exp: 10, completed: false },
+                    { name: "Dust furniture", exp: 8, completed: false }
+                ]
+            },
+            "Running Events": {
+                level: 0,
+                exp: 0,
+                items: [
+                    { name: "Set up event space", exp: 20, completed: false },
+                    { name: "Coordinate with vendors", exp: 25, completed: false }
+                ]
+            },
+            "Fire Training": {
+                level: 0,
+                exp: 0,
+                items: [
+                    { name: "Fire safety procedures", exp: 30, completed: false },
+                    { name: "Emergency evacuation", exp: 25, completed: false }
+                ]
+            },
+            "Lead Skills": {
+                level: 0,
+                exp: 0,
+                locked: true,
+                items: [
+                    { name: "Team leadership", exp: 40, completed: false },
+                    { name: "Training new staff", exp: 35, completed: false },
+                    { name: "Performance reviews", exp: 45, completed: false }
+                ]
+            }
+        };
+
+        // Load saved data
+        function loadSavedData() {
+            const saved = localStorage.getItem('hotelSkillsData');
+            if (saved) {
+                const savedData = JSON.parse(saved);
+                Object.keys(savedData).forEach(key => {
+                    if (skillsData[key]) {
+                        skillsData[key] = { ...skillsData[key], ...savedData[key] };
+                    }
+                });
+            }
+        }
+
+        // Save data
+        function saveData() {
+            localStorage.setItem('hotelSkillsData', JSON.stringify(skillsData));
+        }
+
+        // Calculate experience needed for next level
+        function getExpNeeded(level) {
+            return 50 + (level * 25);
+        }
+
+        // Calculate total level
+        function calculateTotalLevel() {
+            return Object.values(skillsData).reduce((total, skill) => total + skill.level, 0);
+        }
+
+        // Calculate total experience
+        function calculateTotalExp() {
+            return Object.values(skillsData).reduce((total, skill) => total + skill.exp, 0);
+        }
+
+        // Check if Lead Skills should be unlocked
+        function checkLeadSkillsUnlock() {
+            const totalLevel = calculateTotalLevel();
+            if (totalLevel >= 3 && skillsData["Lead Skills"].locked) {
+                skillsData["Lead Skills"].locked = false;
+                saveData();
+                renderSkillsGrid();
+            }
+        }
+
+        // Show level up popup
+        function showLevelUpPopup(skillName, newLevel) {
+            const popup = document.getElementById('levelUpPopup');
+            const message = document.getElementById('levelUpMessage');
+            message.textContent = `${skillName} reached Level ${newLevel}!`;
+            popup.style.display = 'flex';
+        }
+
+        // Close level up popup
+        function closeLevelUpPopup() {
+            document.getElementById('levelUpPopup').style.display = 'none';
+        }
+
+        // Handle skill item completion
+        function completeSkillItem(skillName, itemIndex) {
+            const skill = skillsData[skillName];
+            const item = skill.items[itemIndex];
+            
+            if (item.completed) return;
+            
+            item.completed = true;
+            skill.exp += item.exp;
+            
+            // Check for level up
+            const expNeeded = getExpNeeded(skill.level);
+            if (skill.exp >= expNeeded) {
+                skill.level++;
+                skill.exp -= expNeeded;
+                showLevelUpPopup(skillName, skill.level);
+            }
+            
+            checkLeadSkillsUnlock();
+            saveData();
+            updateDisplay();
+        }
+
+        // Update all displays
+        function updateDisplay() {
+            updateTotalLevel();
+            renderSkillsGrid();
+            if (document.getElementById('skillDetail').style.display !== 'none') {
+                const currentSkill = document.getElementById('detailSkillName').textContent;
+                showSkillDetail(currentSkill);
+            }
+        }
+
+        // Update total level display
+        function updateTotalLevel() {
+            const totalLevel = calculateTotalLevel();
+            const totalExp = calculateTotalExp();
+            
+            document.getElementById('totalLevel').textContent = totalLevel;
+            document.getElementById('totalExp').textContent = totalExp;
+            
+            // Calculate progress to next "total level"
+            const expForNextLevel = (totalLevel + 1) * 100;
+            const progress = Math.min((totalExp / expForNextLevel) * 100, 100);
+            document.getElementById('totalExpFill').style.width = `${progress}%`;
+        }
+
+        // Render skills grid
+        function renderSkillsGrid() {
+            const grid = document.getElementById('skillsGrid');
+            grid.innerHTML = '';
+            
+            Object.keys(skillsData).forEach(skillName => {
+                const skill = skillsData[skillName];
+                const card = document.createElement('div');
+                card.className = `skill-card ${skill.locked ? 'locked' : ''}`;
+                
+                const expNeeded = getExpNeeded(skill.level);
+                const expProgress = skill.level > 0 ? (skill.exp / expNeeded) * 100 : 0;
+                
+                card.innerHTML = `
+                    <div class="skill-header">
+                        <h3 class="skill-name">${skillName}</h3>
+                        <div class="skill-level">Level ${skill.level}</div>
+                    </div>
+                    <div class="skill-exp">
+                        ${skill.locked ? '<div class="lock-icon">🔒</div>' : `
+                            <div>Experience: ${skill.exp} / ${expNeeded}</div>
+                            <div class="skill-exp-bar">
+                                <div class="skill-exp-fill" style="width: ${expProgress}%"></div>
+                            </div>
+                        `}
+                    </div>
+                `;
+                
+                if (!skill.locked) {
+                    card.onclick = () => showSkillDetail(skillName);
+                }
+                
+                grid.appendChild(card);
+            });
+        }
+
+        // Show skill detail page
+        function showSkillDetail(skillName) {
+            const skill = skillsData[skillName];
+            
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('skillDetail').style.display = 'block';
+            
+            document.getElementById('detailSkillName').textContent = skillName;
+            document.getElementById('detailSkillLevel').textContent = `Level ${skill.level}`;
+            document.getElementById('detailSkillExp').textContent = skill.exp;
+            
+            const expNeeded = getExpNeeded(skill.level);
+            document.getElementById('detailSkillExpNeeded').textContent = expNeeded;
+            
+            const expProgress = skill.level > 0 ? (skill.exp / expNeeded) * 100 : 0;
+            document.getElementById('detailSkillExpFill').style.width = `${expProgress}%`;
+            
+            // Render skill items
+            const itemsContainer = document.getElementById('skillItems');
+            itemsContainer.innerHTML = '';
+            
+            skill.items.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'skill-item';
+                itemDiv.innerHTML = `
+                    <div class="skill-item-header">
+                        <span class="skill-item-name">${item.name}</span>
+                        <span class="skill-item-exp">+${item.exp} EXP</span>
+                    </div>
+                    <label>
+                        <input type="checkbox" class="skill-checkbox" 
+                               ${item.completed ? 'checked disabled' : ''} 
+                               onchange="completeSkillItem('${skillName}', ${index})">
+                        ${item.completed ? 'Completed!' : 'Mark as completed'}
+                    </label>
+                `;
+                itemsContainer.appendChild(itemDiv);
+            });
+        }
+
+        // Show main page
+        function showMainPage() {
+            document.getElementById('mainPage').style.display = 'block';
+            document.getElementById('skillDetail').style.display = 'none';
+        }
+
+        // Initialize the application
+        function init() {
+            loadSavedData();
+            checkLeadSkillsUnlock();
+            updateDisplay();
+        }
+
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
