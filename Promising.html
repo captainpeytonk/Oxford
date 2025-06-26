@@ -315,30 +315,16 @@
         const skillsData = {
             "Cloudbeds Skills": {
                 level: 0,
-                exp: 0,
+                totalExp: 0, // Total accumulated experience for this skill
                 items: [
                     { name: "Check someone in", exp: 10, completed: false },
-                    { name: "Check someone in", exp: 10, completed: false },
-                    { name: "Check someone in", exp: 10, completed: false },
-                    { name: "Make a reservation", exp: 10, completed: false },
-                    { name: "Check someone in", exp: 10, completed: false },
-                    { name: "Make a reservation", exp: 10, completed: false },
-                    { name: "Make a reservation", exp: 10, completed: false },
-                    { name: "Check someone in", exp: 10, completed: false },
-                    { name: "Make a reservation", exp: 10, completed: false },
-                    { name: "Check someone in", exp: 10, completed: false },
-                    { name: "Make a reservation", exp: 10, completed: false },
-                    { name: "Check someone in", exp: 10, completed: false },
-                    { name: "Make a reservation", exp: 10, completed: false },
-                    { name: "Make a reservation", exp: 10, completed: false },
-                    { name: "Check someone in", exp: 10, completed: false },
-                    { name: "Make a reservation", exp: 10, completed: false },
-                    { name: "Take a payment", exp: 10, completed: false }
+                    { name: "Make a reservation", exp: 15, completed: false },
+                    { name: "Take a payment", exp: 20, completed: false }
                 ]
             },
             "Laundry/Folding": {
                 level: 0,
-                exp: 0,
+                totalExp: 0,
                 items: [
                     { name: "Fold bed sheets", exp: 8, completed: false },
                     { name: "Sort laundry by type", exp: 12, completed: false }
@@ -346,7 +332,7 @@
             },
             "Beds": {
                 level: 0,
-                exp: 0,
+                totalExp: 0,
                 items: [
                     { name: "Make a bed properly", exp: 10, completed: false },
                     { name: "Change pillowcases", exp: 8, completed: false },
@@ -355,7 +341,7 @@
             },
             "Reception": {
                 level: 0,
-                exp: 0,
+                totalExp: 0,
                 items: [
                     { name: "Answer phone professionally", exp: 12, completed: false },
                     { name: "Handle guest complaints", exp: 18, completed: false }
@@ -363,7 +349,7 @@
             },
             "Cleaning": {
                 level: 0,
-                exp: 0,
+                totalExp: 0,
                 items: [
                     { name: "Clean bathroom properly", exp: 15, completed: false },
                     { name: "Vacuum room thoroughly", exp: 10, completed: false },
@@ -372,7 +358,7 @@
             },
             "Running Events": {
                 level: 0,
-                exp: 0,
+                totalExp: 0,
                 items: [
                     { name: "Set up event space", exp: 20, completed: false },
                     { name: "Coordinate with vendors", exp: 25, completed: false }
@@ -380,7 +366,7 @@
             },
             "Fire Training": {
                 level: 0,
-                exp: 0,
+                totalExp: 0,
                 items: [
                     { name: "Fire safety procedures", exp: 30, completed: false },
                     { name: "Emergency evacuation", exp: 25, completed: false }
@@ -388,7 +374,7 @@
             },
             "Lead Skills": {
                 level: 0,
-                exp: 0,
+                totalExp: 0,
                 locked: true,
                 items: [
                     { name: "Team leadership", exp: 40, completed: false },
@@ -398,26 +384,39 @@
             }
         };
 
-        // Load saved data
-        function loadSavedData() {
-            // Intentionally empty - starting fresh each time
-            // Remove this comment and add localStorage logic if you want persistence
-        }
-
-        // Clear all saved data (for testing/reset)
-        function clearSavedData() {
-            localStorage.removeItem('hotelSkillsData');
-            location.reload();
-        }
-
-        // Save data (disabled for fresh start)
-        function saveData() {
-            // Disabled to ensure fresh start every time
-        }
-
         // Calculate experience needed for next level
         function getExpNeeded(level) {
-            return 100;
+            return 50 + (level * 25);
+        }
+
+        // Calculate total experience needed to reach a specific level
+        function getTotalExpForLevel(level) {
+            let total = 0;
+            for (let i = 0; i < level; i++) {
+                total += getExpNeeded(i);
+            }
+            return total;
+        }
+
+        // Calculate current experience within the current level
+        function getCurrentLevelExp(totalExp, level) {
+            const expForCurrentLevel = getTotalExpForLevel(level);
+            return totalExp - expForCurrentLevel;
+        }
+
+        // Calculate level from total experience
+        function calculateLevelFromExp(totalExp) {
+            let level = 0;
+            let expNeeded = 0;
+            
+            while (expNeeded <= totalExp) {
+                expNeeded += getExpNeeded(level);
+                if (expNeeded <= totalExp) {
+                    level++;
+                }
+            }
+            
+            return level;
         }
 
         // Calculate total level (based on total experience / 100)
@@ -426,9 +425,9 @@
             return Math.floor(totalExp / 100);
         }
 
-        // Calculate total experience
+        // Calculate total experience across all skills
         function calculateTotalExp() {
-            return Object.values(skillsData).reduce((total, skill) => total + skill.exp, 0);
+            return Object.values(skillsData).reduce((total, skill) => total + skill.totalExp, 0);
         }
 
         // Check if a skill category is at max level (all items completed)
@@ -442,15 +441,13 @@
             const totalLevel = calculateTotalLevel();
             if (totalLevel >= 3 && skillsData["Lead Skills"].locked) {
                 skillsData["Lead Skills"].locked = false;
-                saveData();
                 renderSkillsGrid();
             } else if (totalLevel < 3 && !skillsData["Lead Skills"].locked) {
                 skillsData["Lead Skills"].locked = true;
                 // Reset Lead Skills if they become locked again
                 skillsData["Lead Skills"].level = 0;
-                skillsData["Lead Skills"].exp = 0;
+                skillsData["Lead Skills"].totalExp = 0;
                 skillsData["Lead Skills"].items.forEach(item => item.completed = false);
-                saveData();
                 renderSkillsGrid();
             }
         }
@@ -486,47 +483,47 @@
             const item = skill.items[itemIndex];
             
             const previousTotalLevel = calculateTotalLevel();
+            const previousLevel = skill.level;
             
             if (item.completed) {
                 // Deselecting - remove experience
                 item.completed = false;
-                skill.exp = Math.max(0, skill.exp - item.exp);
-                
-                // Check if skill level should decrease
-                while (skill.level > 0 && skill.exp < getExpNeeded(skill.level - 1)) {
-                    skill.level--;
-                }
+                skill.totalExp = Math.max(0, skill.totalExp - item.exp);
             } else {
                 // Selecting - add experience
                 item.completed = true;
-                skill.exp += item.exp;
-                
-                // Check for individual skill level up
-                const expNeeded = getExpNeeded(skill.level);
-                if (skill.exp >= expNeeded) {
-                    skill.level++;
-                    skill.exp -= expNeeded;
-                    showLevelUpPopup(skillName, skill.level);
-                }
-                
-                // Check for total level up (every 100 total exp)
-                const newTotalLevel = calculateTotalLevel();
-                if (newTotalLevel > previousTotalLevel) {
-                    setTimeout(() => {
-                        showLevelUpPopup("Total Level", newTotalLevel);
-                    }, 1000);
-                }
-                
-                // Check if skill category reached max level
-                if (isSkillMaxLevel(skillName)) {
-                    setTimeout(() => {
-                        showMaxLevelPopup(skillName);
-                    }, 1500);
-                }
+                skill.totalExp += item.exp;
+            }
+            
+            // Recalculate skill level based on total experience
+            const newLevel = calculateLevelFromExp(skill.totalExp);
+            
+            // Show level up popup if skill leveled up
+            if (newLevel > previousLevel) {
+                skill.level = newLevel;
+                showLevelUpPopup(skillName, newLevel);
+            } else if (newLevel < previousLevel) {
+                skill.level = newLevel;
+            } else {
+                skill.level = newLevel;
+            }
+            
+            // Check for total level up (every 100 total exp)
+            const newTotalLevel = calculateTotalLevel();
+            if (newTotalLevel > previousTotalLevel) {
+                setTimeout(() => {
+                    showLevelUpPopup("Total Level", newTotalLevel);
+                }, 1000);
+            }
+            
+            // Check if skill category reached max level
+            if (isSkillMaxLevel(skillName) && item.completed) {
+                setTimeout(() => {
+                    showMaxLevelPopup(skillName);
+                }, 1500);
             }
             
             checkLeadSkillsUnlock();
-            saveData();
             updateDisplay();
         }
 
@@ -565,7 +562,8 @@
                 card.className = `skill-card ${skill.locked ? 'locked' : ''}`;
                 
                 const expNeeded = getExpNeeded(skill.level);
-                const expProgress = skill.level > 0 ? (skill.exp / expNeeded) * 100 : 0;
+                const currentLevelExp = getCurrentLevelExp(skill.totalExp, skill.level);
+                const expProgress = skill.level > 0 || currentLevelExp > 0 ? (currentLevelExp / expNeeded) * 100 : 0;
                 const isMaxLevel = isSkillMaxLevel(skillName);
                 
                 card.innerHTML = `
@@ -576,7 +574,7 @@
                     <div class="skill-exp">
                         ${skill.locked ? '<div class="lock-icon">🔒</div>' : 
                           isMaxLevel ? '<div style="color: #48bb78; font-weight: bold; text-align: center;">🏆 COMPLETED 🏆</div>' : `
-                            <div>Experience: ${skill.exp} / ${expNeeded}</div>
+                            <div>Experience: ${currentLevelExp} / ${expNeeded}</div>
                             <div class="skill-exp-bar">
                                 <div class="skill-exp-fill" style="width: ${expProgress}%"></div>
                             </div>
@@ -600,15 +598,15 @@
             document.getElementById('skillDetail').style.display = 'block';
             
             const isMaxLevel = isSkillMaxLevel(skillName);
+            const expNeeded = getExpNeeded(skill.level);
+            const currentLevelExp = getCurrentLevelExp(skill.totalExp, skill.level);
             
             document.getElementById('detailSkillName').textContent = skillName;
             document.getElementById('detailSkillLevel').textContent = isMaxLevel ? 'MAX LEVEL' : `Level ${skill.level}`;
-            document.getElementById('detailSkillExp').textContent = skill.exp;
-            
-            const expNeeded = getExpNeeded(skill.level);
+            document.getElementById('detailSkillExp').textContent = currentLevelExp;
             document.getElementById('detailSkillExpNeeded').textContent = expNeeded;
             
-            const expProgress = skill.level > 0 ? (skill.exp / expNeeded) * 100 : 0;
+            const expProgress = skill.level > 0 || currentLevelExp > 0 ? (currentLevelExp / expNeeded) * 100 : 0;
             document.getElementById('detailSkillExpFill').style.width = `${expProgress}%`;
             
             // Render skill items
@@ -654,13 +652,10 @@
 
         // Initialize the application
         function init() {
-            // Clear any existing localStorage to ensure fresh start
-            localStorage.removeItem('hotelSkillsData');
-            
             // Reset all skills to default state
             Object.keys(skillsData).forEach(skillName => {
                 skillsData[skillName].level = 0;
-                skillsData[skillName].exp = 0;
+                skillsData[skillName].totalExp = 0;
                 skillsData[skillName].items.forEach(item => {
                     item.completed = false;
                 });
@@ -672,7 +667,6 @@
             
             checkLeadSkillsUnlock();
             updateDisplay();
-            // Ensure main page is shown on load
             showMainPage();
         }
 
