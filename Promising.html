@@ -407,14 +407,21 @@
             return 50 + (level * 25);
         }
 
-        // Calculate total level
+        // Calculate total level (based on total experience / 100)
         function calculateTotalLevel() {
-            return Object.values(skillsData).reduce((total, skill) => total + skill.level, 0);
+            const totalExp = calculateTotalExp();
+            return Math.floor(totalExp / 100);
         }
 
         // Calculate total experience
         function calculateTotalExp() {
             return Object.values(skillsData).reduce((total, skill) => total + skill.exp, 0);
+        }
+
+        // Check if a skill category is at max level (all items completed)
+        function isSkillMaxLevel(skillName) {
+            const skill = skillsData[skillName];
+            return skill.items.every(item => item.completed);
         }
 
         // Check if Lead Skills should be unlocked
@@ -431,7 +438,19 @@
         function showLevelUpPopup(skillName, newLevel) {
             const popup = document.getElementById('levelUpPopup');
             const message = document.getElementById('levelUpMessage');
-            message.textContent = `${skillName} reached Level ${newLevel}!`;
+            if (skillName === "Total Level") {
+                message.textContent = `Congratulations! You reached Total Level ${newLevel}!`;
+            } else {
+                message.textContent = `${skillName} reached Level ${newLevel}!`;
+            }
+            popup.style.display = 'flex';
+        }
+
+        // Show max level popup
+        function showMaxLevelPopup(skillName) {
+            const popup = document.getElementById('levelUpPopup');
+            const message = document.getElementById('levelUpMessage');
+            message.textContent = `🎉 Congratulations! You've reached MAX LEVEL in ${skillName}! 🎉`;
             popup.style.display = 'flex';
         }
 
@@ -447,15 +466,32 @@
             
             if (item.completed) return;
             
+            const previousTotalLevel = calculateTotalLevel();
+            
             item.completed = true;
             skill.exp += item.exp;
             
-            // Check for level up
+            // Check for individual skill level up
             const expNeeded = getExpNeeded(skill.level);
             if (skill.exp >= expNeeded) {
                 skill.level++;
                 skill.exp -= expNeeded;
                 showLevelUpPopup(skillName, skill.level);
+            }
+            
+            // Check for total level up (every 100 total exp)
+            const newTotalLevel = calculateTotalLevel();
+            if (newTotalLevel > previousTotalLevel) {
+                setTimeout(() => {
+                    showLevelUpPopup("Total Level", newTotalLevel);
+                }, 1000); // Delay to show after individual skill popup
+            }
+            
+            // Check if skill category reached max level
+            if (isSkillMaxLevel(skillName)) {
+                setTimeout(() => {
+                    showMaxLevelPopup(skillName);
+                }, 1500); // Delay to show after other popups
             }
             
             checkLeadSkillsUnlock();
@@ -481,9 +517,9 @@
             document.getElementById('totalLevel').textContent = totalLevel;
             document.getElementById('totalExp').textContent = totalExp;
             
-            // Calculate progress to next "total level"
-            const expForNextLevel = (totalLevel + 1) * 100;
-            const progress = Math.min((totalExp / expForNextLevel) * 100, 100);
+            // Calculate progress to next total level (every 100 exp)
+            const expInCurrentLevel = totalExp % 100;
+            const progress = (expInCurrentLevel / 100) * 100;
             document.getElementById('totalExpFill').style.width = `${progress}%`;
         }
 
@@ -499,14 +535,16 @@
                 
                 const expNeeded = getExpNeeded(skill.level);
                 const expProgress = skill.level > 0 ? (skill.exp / expNeeded) * 100 : 0;
+                const isMaxLevel = isSkillMaxLevel(skillName);
                 
                 card.innerHTML = `
                     <div class="skill-header">
                         <h3 class="skill-name">${skillName}</h3>
-                        <div class="skill-level">Level ${skill.level}</div>
+                        <div class="skill-level">${isMaxLevel ? 'MAX LEVEL' : `Level ${skill.level}`}</div>
                     </div>
                     <div class="skill-exp">
-                        ${skill.locked ? '<div class="lock-icon">🔒</div>' : `
+                        ${skill.locked ? '<div class="lock-icon">🔒</div>' : 
+                          isMaxLevel ? '<div style="color: #48bb78; font-weight: bold; text-align: center;">🏆 COMPLETED 🏆</div>' : `
                             <div>Experience: ${skill.exp} / ${expNeeded}</div>
                             <div class="skill-exp-bar">
                                 <div class="skill-exp-fill" style="width: ${expProgress}%"></div>
