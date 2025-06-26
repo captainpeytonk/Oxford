@@ -397,6 +397,12 @@
             }
         }
 
+        // Clear all saved data (for testing/reset)
+        function clearSavedData() {
+            localStorage.removeItem('hotelSkillsData');
+            location.reload();
+        }
+
         // Save data
         function saveData() {
             localStorage.setItem('hotelSkillsData', JSON.stringify(skillsData));
@@ -568,8 +574,10 @@
             document.getElementById('mainPage').style.display = 'none';
             document.getElementById('skillDetail').style.display = 'block';
             
+            const isMaxLevel = isSkillMaxLevel(skillName);
+            
             document.getElementById('detailSkillName').textContent = skillName;
-            document.getElementById('detailSkillLevel').textContent = `Level ${skill.level}`;
+            document.getElementById('detailSkillLevel').textContent = isMaxLevel ? 'MAX LEVEL' : `Level ${skill.level}`;
             document.getElementById('detailSkillExp').textContent = skill.exp;
             
             const expNeeded = getExpNeeded(skill.level);
@@ -581,6 +589,18 @@
             // Render skill items
             const itemsContainer = document.getElementById('skillItems');
             itemsContainer.innerHTML = '';
+            
+            if (isMaxLevel) {
+                const maxLevelDiv = document.createElement('div');
+                maxLevelDiv.style.textAlign = 'center';
+                maxLevelDiv.style.padding = '30px';
+                maxLevelDiv.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
+                maxLevelDiv.style.color = 'white';
+                maxLevelDiv.style.borderRadius = '15px';
+                maxLevelDiv.style.fontSize = '1.2rem';
+                maxLevelDiv.innerHTML = '🏆 CONGRATULATIONS! 🏆<br>You have completed all skills in this category!';
+                itemsContainer.appendChild(maxLevelDiv);
+            }
             
             skill.items.forEach((item, index) => {
                 const itemDiv = document.createElement('div');
