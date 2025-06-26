@@ -430,11 +430,19 @@
             return skill.items.every(item => item.completed);
         }
 
-        // Check if Lead Skills should be unlocked
+        // Check if Lead Skills should be unlocked or locked
         function checkLeadSkillsUnlock() {
             const totalLevel = calculateTotalLevel();
             if (totalLevel >= 3 && skillsData["Lead Skills"].locked) {
                 skillsData["Lead Skills"].locked = false;
+                saveData();
+                renderSkillsGrid();
+            } else if (totalLevel < 3 && !skillsData["Lead Skills"].locked) {
+                skillsData["Lead Skills"].locked = true;
+                // Reset Lead Skills if they become locked again
+                skillsData["Lead Skills"].level = 0;
+                skillsData["Lead Skills"].exp = 0;
+                skillsData["Lead Skills"].items.forEach(item => item.completed = false);
                 saveData();
                 renderSkillsGrid();
             }
@@ -465,39 +473,49 @@
             document.getElementById('levelUpPopup').style.display = 'none';
         }
 
-        // Handle skill item completion
-        function completeSkillItem(skillName, itemIndex) {
+        // Handle skill item completion/deselection
+        function toggleSkillItem(skillName, itemIndex) {
             const skill = skillsData[skillName];
             const item = skill.items[itemIndex];
             
-            if (item.completed) return;
-            
             const previousTotalLevel = calculateTotalLevel();
             
-            item.completed = true;
-            skill.exp += item.exp;
-            
-            // Check for individual skill level up
-            const expNeeded = getExpNeeded(skill.level);
-            if (skill.exp >= expNeeded) {
-                skill.level++;
-                skill.exp -= expNeeded;
-                showLevelUpPopup(skillName, skill.level);
-            }
-            
-            // Check for total level up (every 100 total exp)
-            const newTotalLevel = calculateTotalLevel();
-            if (newTotalLevel > previousTotalLevel) {
-                setTimeout(() => {
-                    showLevelUpPopup("Total Level", newTotalLevel);
-                }, 1000); // Delay to show after individual skill popup
-            }
-            
-            // Check if skill category reached max level
-            if (isSkillMaxLevel(skillName)) {
-                setTimeout(() => {
-                    showMaxLevelPopup(skillName);
-                }, 1500); // Delay to show after other popups
+            if (item.completed) {
+                // Deselecting - remove experience
+                item.completed = false;
+                skill.exp = Math.max(0, skill.exp - item.exp);
+                
+                // Check if skill level should decrease
+                while (skill.level > 0 && skill.exp < getExpNeeded(skill.level - 1)) {
+                    skill.level--;
+                }
+            } else {
+                // Selecting - add experience
+                item.completed = true;
+                skill.exp += item.exp;
+                
+                // Check for individual skill level up
+                const expNeeded = getExpNeeded(skill.level);
+                if (skill.exp >= expNeeded) {
+                    skill.level++;
+                    skill.exp -= expNeeded;
+                    showLevelUpPopup(skillName, skill.level);
+                }
+                
+                // Check for total level up (every 100 total exp)
+                const newTotalLevel = calculateTotalLevel();
+                if (newTotalLevel > previousTotalLevel) {
+                    setTimeout(() => {
+                        showLevelUpPopup("Total Level", newTotalLevel);
+                    }, 1000);
+                }
+                
+                // Check if skill category reached max level
+                if (isSkillMaxLevel(skillName)) {
+                    setTimeout(() => {
+                        showMaxLevelPopup(skillName);
+                    }, 1500);
+                }
             }
             
             checkLeadSkillsUnlock();
@@ -612,9 +630,9 @@
                     </div>
                     <label>
                         <input type="checkbox" class="skill-checkbox" 
-                               ${item.completed ? 'checked disabled' : ''} 
-                               onchange="completeSkillItem('${skillName}', ${index})">
-                        ${item.completed ? 'Completed!' : 'Mark as completed'}
+                               ${item.completed ? 'checked' : ''} 
+                               onchange="toggleSkillItem('${skillName}', ${index})">
+                        ${item.completed ? 'Completed (click to unselect)' : 'Mark as completed'}
                     </label>
                 `;
                 itemsContainer.appendChild(itemDiv);
