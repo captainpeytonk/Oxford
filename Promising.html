@@ -158,6 +158,10 @@
             display: none;
         }
 
+        #mainPage {
+            display: block;
+        }
+
         .skill-items {
             margin-top: 20px;
         }
@@ -570,6 +574,8 @@
             loadSavedData();
             checkLeadSkillsUnlock();
             updateDisplay();
+            // Ensure main page is shown on load
+            showMainPage();
         }
 
         // Start the application
