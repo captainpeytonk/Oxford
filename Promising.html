@@ -386,15 +386,8 @@
 
         // Load saved data
         function loadSavedData() {
-            const saved = localStorage.getItem('hotelSkillsData');
-            if (saved) {
-                const savedData = JSON.parse(saved);
-                Object.keys(savedData).forEach(key => {
-                    if (skillsData[key]) {
-                        skillsData[key] = { ...skillsData[key], ...savedData[key] };
-                    }
-                });
-            }
+            // Intentionally empty - starting fresh each time
+            // Remove this comment and add localStorage logic if you want persistence
         }
 
         // Clear all saved data (for testing/reset)
@@ -403,9 +396,9 @@
             location.reload();
         }
 
-        // Save data
+        // Save data (disabled for fresh start)
         function saveData() {
-            localStorage.setItem('hotelSkillsData', JSON.stringify(skillsData));
+            // Disabled to ensure fresh start every time
         }
 
         // Calculate experience needed for next level
@@ -647,7 +640,22 @@
 
         // Initialize the application
         function init() {
-            loadSavedData();
+            // Clear any existing localStorage to ensure fresh start
+            localStorage.removeItem('hotelSkillsData');
+            
+            // Reset all skills to default state
+            Object.keys(skillsData).forEach(skillName => {
+                skillsData[skillName].level = 0;
+                skillsData[skillName].exp = 0;
+                skillsData[skillName].items.forEach(item => {
+                    item.completed = false;
+                });
+                // Keep Lead Skills locked initially
+                if (skillName === "Lead Skills") {
+                    skillsData[skillName].locked = true;
+                }
+            });
+            
             checkLeadSkillsUnlock();
             updateDisplay();
             // Ensure main page is shown on load
