@@ -290,11 +290,6 @@ function renderLoginForm() {
     loggedInUser = profile;
     localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
     renderApp();
-    if (!loggedInUser) {
-  renderLoginForm();
-  return;
-}
-
   };
 }
     renderApp();
