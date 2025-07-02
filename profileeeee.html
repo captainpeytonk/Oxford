@@ -252,46 +252,51 @@
       formSection.appendChild(form);
     }
 
-    function renderLoginForm() {
-      const formSection = document.getElementById('formSection');
-      formSection.innerHTML = '';
-      const div = document.createElement('div');
-      div.className = 'bg-white rounded-lg shadow-sm p-6 mb-6';
-      const managerList = profiles.filter(p => p.role === 'manager');
+function renderLoginForm() {
+  const formSection = document.getElementById('formSection');
+  formSection.innerHTML = `
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6 max-w-md mx-auto">
+      <h2 class="text-xl font-semibold mb-4">Login</h2>
+      <form id="loginForm" class="grid gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Name *</label>
+          <input name="name" required class="w-full p-2 border border-gray-300 rounded-md" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Password (Managers Only)</label>
+          <input name="password" type="password" class="w-full p-2 border border-gray-300 rounded-md" />
+        </div>
+        <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">Login</button>
+      </form>
+    </div>
+  `;
 
-      div.innerHTML = `
-        <h2 class="text-xl font-semibold mb-4">Login</h2>
-        <select id="loginSelect" class="w-full p-2 mb-3 border border-gray-300 rounded-md">
-          <option value="">Select Manager</option>
-          ${managerList.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
-        </select>
-        <input type="password" id="loginPassword" placeholder="Enter password" class="w-full p-2 border border-gray-300 rounded-md mb-3" />
-        <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Login</button>
-      `;
+  formSection.querySelector('form').onsubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const name = formData.get('name').trim();
+    const password = formData.get('password');
 
-      div.querySelector('button').onclick = () => {
-        const selectedId = div.querySelector('#loginSelect').value;
-        const password = div.querySelector('#loginPassword').value;
-        const user = profiles.find(p => p.id == selectedId && p.password === password);
-        if (user) {
-          loggedInUser = user;
-          localStorage.setItem('loggedInUser', JSON.stringify(user));
-          renderApp();
-        } else {
-          alert('Incorrect password or user.');
-        }
-      };
+    const profile = profiles.find(p => p.name.toLowerCase() === name.toLowerCase());
 
-      formSection.appendChild(div);
+    if (!profile) {
+      return alert('Profile not found.');
     }
 
-    function logout() {
-      loggedInUser = null;
-      localStorage.removeItem('loggedInUser');
-      renderApp();
+    if (profile.role === 'manager' && profile.password !== password) {
+      return alert('Incorrect password for manager.');
     }
 
+    loggedInUser = profile;
+    localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
     renderApp();
+  };
+}
+    renderApp();
+    if (!loggedInUser) {
+  renderLoginForm();
+  return;
+}
   </script>
 </body>
 </html>
