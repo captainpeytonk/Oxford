@@ -676,9 +676,15 @@
         // State management
         let currentView = 'categories';
         let currentCategory = null;
-const username = localStorage.getItem('currentUser');
-const users = JSON.parse(localStorage.getItem('users') || '{}');
-let skillProgress = (username && users[username]?.data) || {};
+let skillProgress = {};
+const userData = localStorage.getItem('loggedInUser');
+if (userData) {
+  const user = JSON.parse(userData);
+  const allUsers = JSON.parse(localStorage.getItem('users') || '{}');
+  if (user.username && allUsers[user.username]?.skillProgress) {
+    skillProgress = allUsers[user.username].skillProgress;
+  }
+}
 
         // Initialize the application
         function init() {
