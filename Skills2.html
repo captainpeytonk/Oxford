@@ -829,13 +829,25 @@
         }
 
         // Update progress when checkbox is clicked
-        function updateProgress(blockKey) {
-            const checkbox = document.getElementById(blockKey);
-            skillProgress[blockKey] = checkbox.checked;
-            localStorage.setItem('skillProgress', JSON.stringify(skillProgress));
-            
-            updateAllProgress();
-        }
+function updateProgress(blockKey) {
+  const checkbox = document.getElementById(blockKey);
+  skillProgress[blockKey] = checkbox.checked;
+  localStorage.setItem('skillProgress', JSON.stringify(skillProgress));
+
+  updateUserData(skillProgress); // 
+
+  updateAllProgress();
+}
+
+function updateUserData(newData) {
+  const username = localStorage.getItem('currentUser');
+  const users = JSON.parse(localStorage.getItem('users') || '{}');
+
+  if (username && users[username]) {
+    users[username].data = newData;
+    localStorage.setItem('users', JSON.stringify(users));
+  }
+}
 
         // Calculate category progress
         function calculateCategoryProgress(categoryKey) {
