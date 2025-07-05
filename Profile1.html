@@ -59,11 +59,11 @@ if (savedUser) {
 
       const left = document.createElement('div');
       const managerCount = getManagerCount();
-      left.innerHTML = 
+      left.innerHTML = `
         <h1 class="text-3xl font-bold text-gray-900">Profile Management</h1>
         <p class="text-gray-600 mt-1">${profiles.length}/${maxProfiles} profiles created</p>
         <p class="text-gray-600">${managerCount}/${maxManagers} managers</p>
-      ;
+      `;
 
       const right = document.createElement('div');
       right.className = 'flex gap-3';
@@ -76,7 +76,7 @@ if (savedUser) {
 
       const loginBtn = document.createElement('button');
       loginBtn.innerHTML = loggedInUser
-        ? Logout (${loggedInUser.name})
+        ? `Logout (${loggedInUser.name})`
         : 'Login';
       loginBtn.className = 'bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors';
       loginBtn.onclick = loggedInUser ? logout : renderLoginForm;
@@ -113,7 +113,7 @@ if (savedUser) {
         password: profile?.password || ''
       };
 
-      form.innerHTML = 
+      form.innerHTML = `
         <h2 class="text-xl font-semibold mb-4">${isEdit ? 'Edit' : 'Create New'} Profile</h2>
         <form id="profileForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -135,12 +135,12 @@ if (savedUser) {
             <label class="block text-sm font-medium mb-1">Phone *</label>
             <input name="phone" value="${formData.phone}" class="w-full p-2 border border-gray-300 rounded-md" />
           </div>
-          ${isEdit && formData.role === 'manager' ? 
+          ${isEdit && formData.role === 'manager' ? `
           <div class="manager-field hidden">
             <label class="block text-sm font-medium mb-1">Current Password *</label>
             <input name="currentPassword" type="password" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Enter current password to change" />
           </div>
-           : ''}
+          ` : ''}
           <div class="manager-field hidden">
             <label class="block text-sm font-medium mb-1">${isEdit && formData.role === 'manager' ? 'New Password' : 'Password'} *</label>
             <input name="password" value="${isEdit ? '' : formData.password}" type="password" class="w-full p-2 border border-gray-300 rounded-md" ${isEdit && formData.role === 'manager' ? 'placeholder="Leave blank to keep current password"' : ''} />
@@ -154,7 +154,7 @@ if (savedUser) {
           <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">${isEdit ? 'Update' : 'Create'} Profile</button>
           <button class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Cancel</button>
         </div>
-      ;
+      `;
 
       const roleInput = form.querySelector('[name="role"]');
       const managerFields = form.querySelectorAll('.manager-field');
@@ -170,7 +170,7 @@ if (savedUser) {
         const willBeManager = roleInput.value === 'manager';
         
         if (willBeManager && !wasManager && currentManagerCount >= maxManagers) {
-          alert(Maximum ${maxManagers} managers allowed. Cannot change role to manager.);
+          alert(`Maximum ${maxManagers} managers allowed. Cannot change role to manager.`);
           roleInput.value = 'volunteer';
         }
         updateVisibility();
@@ -184,12 +184,12 @@ if (savedUser) {
 
         // Check manager limit for new profiles
         if (!isEdit && data.role === 'manager' && getManagerCount() >= maxManagers) {
-          return alert(Maximum ${maxManagers} managers allowed.);
+          return alert(`Maximum ${maxManagers} managers allowed.`);
         }
 
         // Check manager limit when changing role from volunteer to manager
         if (isEdit && profile.role === 'volunteer' && data.role === 'manager' && getManagerCount() >= maxManagers) {
-          return alert(Maximum ${maxManagers} managers allowed.);
+          return alert(`Maximum ${maxManagers} managers allowed.`);
         }
 
         if (data.role === 'manager') {
@@ -248,11 +248,11 @@ if (savedUser) {
       const div = document.createElement('div');
       div.className = 'bg-white rounded-lg shadow-sm p-6 mb-6';
 
-      div.innerHTML = 
+      div.innerHTML = `
         <h2 class="text-xl font-semibold mb-4">Login</h2>
         <select id="loginSelect" class="w-full p-2 mb-3 border border-gray-300 rounded-md">
           <option value="">Choose your profile...</option>
-          ${profiles.map(p => <option value="${p.id}">${p.name} (${p.role})</option>).join('')}
+          ${profiles.map(p => `<option value="${p.id}">${p.name} (${p.role})</option>`).join('')}
         </select>
         <input id="loginPassword" type="password" placeholder="Manager password (if required)"
           class="w-full p-2 border border-gray-300 rounded-md mb-3"/>
@@ -260,7 +260,7 @@ if (savedUser) {
           <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">Login</button>
           <button class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Cancel</button>
         </div>
-      ;
+      `;
 
       const select = div.querySelector('#loginSelect');
       const pass = div.querySelector('#loginPassword');
@@ -286,11 +286,11 @@ if (savedUser) {
       if (profiles.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'bg-white rounded-lg shadow-sm p-12 text-center';
-        empty.innerHTML = 
+        empty.innerHTML = `
           <div class="text-4xl text-gray-400 mb-4">👤</div>
           <h3 class="text-xl font-medium text-gray-900 mb-2">No profiles yet</h3>
           <p class="text-gray-600">Create your first profile to get started</p>
-        ;
+        `;
         app.appendChild(empty);
         return;
       }
@@ -302,7 +302,7 @@ if (savedUser) {
         const card = document.createElement('div');
         card.className = 'bg-white rounded-lg shadow-sm p-6';
 
-        card.innerHTML = 
+        card.innerHTML = `
           <div class="flex justify-between mb-4">
             <div>
               <h3 class="font-semibold text-gray-900">${profile.name}</h3>
@@ -310,16 +310,16 @@ if (savedUser) {
             </div>
             <div class="flex gap-2">
               <span class="icon-btn text-blue-600 hover:bg-blue-50" title="Edit">✏️</span>
-              ${loggedInUser?.role === 'manager' ? <span class="icon-btn text-red-600 hover:bg-red-50" title="Delete">🗑️</span> : ''}
+              ${loggedInUser?.role === 'manager' ? `<span class="icon-btn text-red-600 hover:bg-red-50" title="Delete">🗑️</span>` : ''}
             </div>
           </div>
           <div class="text-sm space-y-1">
-            ${profile.email ? <div>Email: ${profile.email}</div> : ''}
-            ${profile.phone ? <div>Phone: ${profile.phone}</div> : ''}
+            ${profile.email ? `<div>Email: ${profile.email}</div>` : ''}
+            ${profile.phone ? `<div>Phone: ${profile.phone}</div>` : ''}
             <div>Created: ${profile.createdAt}</div>
-            ${profile.notes ? <div class="mt-2 text-xs text-gray-600">Notes: ${profile.notes}</div> : ''}
+            ${profile.notes ? `<div class="mt-2 text-xs text-gray-600">Notes: ${profile.notes}</div>` : ''}
           </div>
-        ;
+        `;
 
         const [editBtn, deleteBtn] = card.querySelectorAll('.icon-btn');
         if (editBtn) editBtn.onclick = () => renderCreateForm(profile);
