@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Profile Progress Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-section {
+            margin-bottom: 30px;
+        }
+
+        .login-section h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .profile-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .profile-section {
+            display: none;
+        }
+
+        .profile-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .progress-info {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .checkbox-item {
+            position: relative;
+            aspect-ratio: 1;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .checkbox-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .checkbox-item.checked {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border-color: #28a745;
+            color: white;
+        }
+
+        .checkbox-item.checked::after {
+            content: "✓";
+            font-size: 1.5rem;
+        }
+
+        .congrats {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+            animation: celebration 0.5s ease-in-out;
+        }
+
+        @keyframes celebration {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .profile-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .profile-list h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .profile-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .profile-name-list {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .profile-progress {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Section -->
+        <div class="login-section" id="loginSection">
+            <h1>Profile Progress Tracker</h1>
+            <div class="profile-input">
+                <input type="text" id="profileName" placeholder="Enter profile name..." />
+                <button class="btn btn-primary" onclick="loginProfile()">Login</button>
+            </div>
+            
+            <div id="profileList" class="profile-list hidden">
+                <h3>Existing Profiles:</h3>
+                <div id="profileItems"></div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="profile-section" id="profileSection">
+            <div class="profile-header">
+                <div>
+                    <div class="profile-name" id="currentProfileName"></div>
+                    <div class="progress-info" id="progressInfo"></div>
+                </div>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+
+            <div class="checkbox-grid" id="checkboxGrid">
+                <!-- Checkboxes will be generated here -->
+            </div>
+
+            <div id="congratsMessage" class="congrats hidden">
+                🎉 Congratulations! You've completed all tasks! 🎉
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // In-memory storage for profiles (will be lost on page refresh)
+        let profiles = {};
+        let currentProfile = null;
+
+        function updateProfileList() {
+            const profileList = document.getElementById('profileList');
+            const profileItems = document.getElementById('profileItems');
+            
+            if (Object.keys(profiles).length === 0) {
+                profileList.classList.add('hidden');
+                return;
+            }
+
+            profileList.classList.remove('hidden');
+            profileItems.innerHTML = '';
+
+            Object.keys(profiles).forEach(profileName => {
+                const profile = profiles[profileName];
+                const checkedCount = profile.checkboxes.filter(checked => checked).length;
+                
+                const profileItem = document.createElement('div');
+                profileItem.className = 'profile-item';
+                profileItem.innerHTML = `
+                    <div class="profile-name-list">${profileName}</div>
+                    <div class="profile-progress">${checkedCount}/10 completed</div>
+                `;
+                profileItem.onclick = () => {
+                    document.getElementById('profileName').value = profileName;
+                    loginProfile();
+                };
+                profileItems.appendChild(profileItem);
+            });
+        }
+
+        function loginProfile() {
+            const profileName = document.getElementById('profileName').value.trim();
+            
+            if (!profileName) {
+                alert('Please enter a profile name');
+                return;
+            }
+
+            // Create new profile if it doesn't exist
+            if (!profiles[profileName]) {
+                profiles[profileName] = {
+                    checkboxes: new Array(10).fill(false)
+                };
+            }
+
+            currentProfile = profileName;
+            showProfileSection();
+        }
+
+        function showProfileSection() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('profileSection').style.display = 'block';
+            document.getElementById('currentProfileName').textContent = currentProfile;
+            
+            generateCheckboxes();
+            updateProgress();
+        }
+
+        function generateCheckboxes() {
+            const grid = document.getElementById('checkboxGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 10; i++) {
+                const checkbox = document.createElement('div');
+                checkbox.className = 'checkbox-item';
+                checkbox.textContent = i + 1;
+                checkbox.onclick = () => toggleCheckbox(i);
+                
+                if (profiles[currentProfile].checkboxes[i]) {
+                    checkbox.classList.add('checked');
+                }
+                
+                grid.appendChild(checkbox);
+            }
+        }
+
+        function toggleCheckbox(index) {
+            profiles[currentProfile].checkboxes[index] = !profiles[currentProfile].checkboxes[index];
+            generateCheckboxes();
+            updateProgress();
+            checkCompletion();
+        }
+
+        function updateProgress() {
+            const checkedCount = profiles[currentProfile].checkboxes.filter(checked => checked).length;
+            document.getElementById('progressInfo').textContent = `${checkedCount}/10 completed`;
+        }
+
+        function checkCompletion() {
+            const checkedCount = profiles[currentProfile].checkboxes.filter(checked => checked).length;
+            const congratsMessage = document.getElementById('congratsMessage');
+            
+            if (checkedCount === 10) {
+                congratsMessage.classList.remove('hidden');
+            } else {
+                congratsMessage.classList.add('hidden');
+            }
+        }
+
+        function logout() {
+            currentProfile = null;
+            document.getElementById('profileSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('profileName').value = '';
+            updateProfileList();
+        }
+
+        // Initialize the app
+        updateProfileList();
+    </script>
+</body>
+</html>
