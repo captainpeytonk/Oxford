@@ -313,6 +313,17 @@
     <script>
         // Skill data structure
         const skillsData = {
+            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+const username = loggedInUser?.name || 'guest';
+
+let allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
+let skillsData = allHotelData[username] || structuredClone(defaultSkillsData);
+
+// Save back to localStorage if no record yet
+if (!allHotelData[username]) {
+    allHotelData[username] = skillsData;
+    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+}
             "Cloudbeds Skills": {
                 level: 0,
                 totalExp: 0, // Total accumulated experience for this skill
@@ -493,6 +504,8 @@
                 // Selecting - add experience
                 item.completed = true;
                 skill.totalExp += item.exp;
+                allHotelData[username] = skillsData;
+localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
             }
             
             // Recalculate skill level based on total experience
@@ -651,24 +664,10 @@
         }
 
         // Initialize the application
-        function init() {
-            // Reset all skills to default state
-            Object.keys(skillsData).forEach(skillName => {
-                skillsData[skillName].level = 0;
-                skillsData[skillName].totalExp = 0;
-                skillsData[skillName].items.forEach(item => {
-                    item.completed = false;
-                });
-                // Keep Lead Skills locked initially
-                if (skillName === "Lead Skills") {
-                    skillsData[skillName].locked = true;
+checkLeadSkillsUnlock();
+updateDisplay();
+showMainPage();
                 }
-            });
-            
-            checkLeadSkillsUnlock();
-            updateDisplay();
-            showMainPage();
-        }
 
         // Start the application
         init();
