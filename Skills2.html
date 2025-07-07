@@ -676,13 +676,24 @@
         // State management
         let currentView = 'categories';
         let currentCategory = null;
-        let skillProgress = JSON.parse(localStorage.getItem('skillProgress') || '{}');
+        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+        const username = loggedInUser?.name || 'guest';
 
+        // Use username as key
+        let allSkillData = JSON.parse(localStorage.getItem('userSkills') || '{}');
+        let skillProgress = allSkillData[username] || {};
         // Initialize the application
         function init() {
-            renderCategories();
-            updateAllProgress();
+          const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+          const username = loggedInUser?.name || 'guest';
+
+          const allSkillData = JSON.parse(localStorage.getItem('userSkills') || '{}');
+          skillProgress = allSkillData[username] || {};
+
+          renderCategories();
+          updateAllProgress();
         }
+
 
         // Render main categories
         function renderCategories() {
@@ -832,12 +843,19 @@
 function updateProgress(blockKey) {
   const checkbox = document.getElementById(blockKey);
   skillProgress[blockKey] = checkbox.checked;
-  localStorage.setItem('skillProgress', JSON.stringify(skillProgress));
 
-  updateUserData(skillProgress); // 
+  const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+  const username = loggedInUser?.name || 'guest';
+
+  // Load all users' progress data
+  let allSkillData = JSON.parse(localStorage.getItem('userSkills') || '{}');
+  allSkillData[username] = skillProgress;
+
+  localStorage.setItem('userSkills', JSON.stringify(allSkillData));
 
   updateAllProgress();
 }
+
 
 function updateUserData(newData) {
   const username = localStorage.getItem('currentUser');
