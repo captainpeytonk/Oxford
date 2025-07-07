@@ -822,6 +822,127 @@
                   </label>
               `;
           }
+// In the calculateLevelFromExp function, fix the typo in variable name (expNeeded vs expNeeded)
+function calculateLevelFromExp(totalExp) {
+    let level = 0;
+    let expNeeded = 0;
+
+    while (expNeeded <= totalExp) {
+        expNeeded += getExpNeeded(level);
+        if (expNeeded <= totalExp) {
+            level++;
+        }
+    }
+
+    return level;
+}
+
+// Update the startVerificationTest function to properly handle the test initiation
+function startVerificationTest() {
+    testState.active = true;
+    testState.skillName = "Total Level";
+    testState.itemsToVerify = [];
+    
+    // Collect all completed but not permanent items from all skills
+    Object.keys(skillsData).forEach(skillName => {
+        const skill = skillsData[skillName];
+        skill.items.forEach(item => {
+            if (item.completed && !item.permanent) {
+                testState.itemsToVerify.push({
+                    skillName,
+                    itemName: item.name,
+                    itemExp: item.exp,
+                    verified: false
+                });
+            }
+        });
+    });
+    
+    // If no items to verify, skip straight to level up
+    if (testState.itemsToVerify.length === 0) {
+        completeLevelUpTest();
+        return;
+    }
+    
+    // Show test popup
+    const popup = document.getElementById('testPopup');
+    const container = document.getElementById('testItemsContainer');
+    container.innerHTML = '';
+    
+    testState.itemsToVerify.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'test-item';
+        itemDiv.innerHTML = `
+            <input type="checkbox" class="test-checkbox" id="testItem-${index}" 
+                   onchange="updateTestVerification(${index})">
+            <label for="testItem-${index}" style="flex-grow: 1;">
+                <strong>${item.skillName}</strong>: ${item.itemName} (+${item.itemExp} EXP)
+            </label>
+        `;
+        container.appendChild(itemDiv);
+    });
+    
+    document.getElementById('verifyTestBtn').disabled = true;
+    popup.style.display = 'flex';
+}
+
+// Update the completeLevelUpTest function to properly handle the level up
+function completeLevelUpTest() {
+    // Mark all verified items as permanent
+    testState.itemsToVerify.forEach(item => {
+        if (item.verified) {
+            const skill = skillsData[item.skillName];
+            const skillItem = skill.items.find(i => i.name === item.itemName);
+            if (skillItem) {
+                skillItem.permanent = true;
+                skillItem.completed = true; // Ensure it stays completed
+            }
+        }
+    });
+    
+    // Calculate new total level (current floor + 1)
+    const currentTotalExp = calculateTotalExp();
+    const currentFloor = Math.floor(currentTotalExp / 100);
+    const newTotalLevel = currentFloor + 1;
+    
+    // Save to localStorage
+    allHotelData[username] = skillsData;
+    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+    
+    // Show level up message
+    showLevelUpPopup("Total Level", newTotalLevel);
+    
+    // Reset test state
+    testState.active = false;
+    testState.skillName = null;
+    testState.itemsToVerify = [];
+    
+    // Hide test button until next level
+    document.getElementById('takeTestBtn').style.display = 'none';
+    
+    // Update display
+    updateDisplay();
+}
+
+// Update the updateTotalLevel function to properly calculate progress
+function updateTotalLevel() {
+    const totalExp = calculateTotalExp();
+    const totalLevel = Math.floor(totalExp / 100);
+    const expInCurrentLevel = totalExp % 100;
+    const progress = (expInCurrentLevel / 100) * 100;
+
+    document.getElementById('totalLevel').textContent = totalLevel;
+    document.getElementById('totalExp').textContent = totalExp;
+    document.getElementById('totalExpFill').style.width = `${progress}%`;
+    
+    // Only show test button if at 100% and not already in test
+    const testBtn = document.getElementById('takeTestBtn');
+    if (progress >= 100 && !testState.active) {
+        testBtn.style.display = 'block';
+    } else {
+        testBtn.style.display = 'none';
+    }
+}
           
           itemDiv.innerHTML = `
               <div class="skill-item-header">
