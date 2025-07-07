@@ -512,19 +512,20 @@
   }
 
   // Show test button when progress is 100%
+ // Show test button when progress is 100% - IMPROVED VERSION
   function checkForTestAvailability() {
       const totalExp = calculateTotalExp();
       const expInCurrentLevel = totalExp % 100;
       const progress = (expInCurrentLevel / 100) * 100;
       const testBtn = document.getElementById('takeTestBtn');
       
-      if (progress >= 100 && !testState.active) {
+      // Only show when exactly at 100% and not in test
+      if (Math.round(progress) >= 100 && !testState.active) {
           testBtn.style.display = 'block';
       } else {
           testBtn.style.display = 'none';
       }
   }
-
   // Start the verification test
   function startVerificationTest() {
       testState.active = true;
@@ -782,6 +783,7 @@ function checkForTestAvailability() {
   }
 
   // Show skill detail page
+ // Show skill detail page - IMPROVED PERMANENT ITEMS DISPLAY
   function showSkillDetail(skillName) {
       const skill = skillsData[skillName];
 
@@ -815,6 +817,42 @@ function checkForTestAvailability() {
           maxLevelDiv.innerHTML = '🏆 CONGRATULATIONS! 🏆<br>You have completed all skills in this category!';
           itemsContainer.appendChild(maxLevelDiv);
       }
+
+      skill.items.forEach((item, index) => {
+          const itemDiv = document.createElement('div');
+          itemDiv.className = 'skill-item';
+          
+          let checkboxLabel = '';
+          if (item.permanent) {
+              checkboxLabel = `
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                      <span style="color: #48bb78; font-weight: bold;">
+                          ✓ Verified and Permanent
+                      </span>
+                      <input type="checkbox" checked disabled style="margin-left: 10px;">
+                  </div>
+              `;
+          } else {
+              checkboxLabel = `
+                  <label style="display: flex; align-items: center;">
+                      <input type="checkbox" class="skill-checkbox" 
+                          ${item.completed ? 'checked' : ''} 
+                          onchange="toggleSkillItem('${skillName}', ${index})">
+                      <span>${item.completed ? 'Completed (click to unselect)' : 'Mark as completed'}</span>
+                  </label>
+              `;
+          }
+          
+          itemDiv.innerHTML = `
+              <div class="skill-item-header">
+                  <span class="skill-item-name">${item.name}</span>
+                  <span class="skill-item-exp">+${item.exp} EXP</span>
+              </div>
+              ${checkboxLabel}
+          `;
+          itemsContainer.appendChild(itemDiv);
+      });
+  }
 
       skill.items.forEach((item, index) => {
           const itemDiv = document.createElement('div');
@@ -897,31 +935,44 @@ function startVerificationTest() {
     popup.style.display = 'flex';
 }
 
-// Update the completeLevelUpTest function to properly handle the level up
-function completeLevelUpTest() {
-    // Mark all verified items as permanent
-    testState.itemsToVerify.forEach(item => {
-        if (item.verified) {
-            const skill = skillsData[item.skillName];
-            const skillItem = skill.items.find(i => i.name === item.itemName);
-            if (skillItem) {
-                skillItem.permanent = true;
-                skillItem.completed = true; // Ensure it stays completed
-            }
-        }
-    });
-    
-    // Calculate new total level (current floor + 1)
-    const currentTotalExp = calculateTotalExp();
-    const currentFloor = Math.floor(currentTotalExp / 100);
-    const newTotalLevel = currentFloor + 1;
-    
-    // Save to localStorage
-    allHotelData[username] = skillsData;
-    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
-    
-    // Show level up message
-    showLevelUpPopup("Total Level", newTotalLevel);
+  // Complete the level up process - FIXED VERSION
+  function completeLevelUpTest() {
+      // Mark all verified items as permanent and completed
+      testState.itemsToVerify.forEach(item => {
+          if (item.verified) {
+              const skill = skillsData[item.skillName];
+              const skillItem = skill.items.find(i => i.name === item.itemName);
+              if (skillItem) {
+                  skillItem.permanent = true;
+                  skillItem.completed = true; // Ensure it stays completed
+              }
+          }
+      });
+      
+      // Calculate new total level (current floor + 1)
+      const currentTotalExp = calculateTotalExp();
+      const currentFloor = Math.floor(currentTotalExp / 100);
+      const newTotalLevel = currentFloor + 1;
+      
+      // Save to localStorage
+      try {
+          allHotelData[username] = skillsData;
+          localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+      } catch (e) {
+          console.error("Failed to save data:", e);
+      }
+      
+      // Show level up message
+      showLevelUpPopup("Total Level", newTotalLevel);
+      
+      // Reset test state
+      testState.active = false;
+      testState.skillName = null;
+      testState.itemsToVerify = [];
+      
+      // Update display
+      updateDisplay();
+  }
     
     // Reset test state
     testState.active = false;
