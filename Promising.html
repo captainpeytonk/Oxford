@@ -292,13 +292,6 @@
         }
     </style>
 </head>
-<header>
-  <nav>
-    <ul>
-      <li><a href="Profile1.html">Home</a></li>
-    </ul>
-  </nav>
-</header>
 <body>
     <div class="container">
         <div class="header">
@@ -349,7 +342,6 @@
         </div>
     </div>
 
-    <!-- New test popup -->
     <div class="popup" id="testPopup">
         <div class="popup-content" style="max-width: 600px;">
             <h3>📝 Skill Verification Test</h3>
@@ -360,7 +352,7 @@
     </div>
 
 <script>
-// Step 1: Define the default data structure (DO NOT mutate this)
+// Initialize all variables and functions
 const defaultSkillsData = {
     "Cloudbeds Skills": {
         level: 0,
@@ -424,13 +416,14 @@ const defaultSkillsData = {
     }
 };
 
-// Step 2: Get current user and user-specific skills data
-const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-const username = loggedInUser?.name || 'guest';
+// Get current user data
+const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser')) || { name: 'guest' };
+const username = loggedInUser.name;
 let allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
 
+// Initialize user data if it doesn't exist
 if (!allHotelData[username]) {
-    allHotelData[username] = structuredClone(defaultSkillsData);
+    allHotelData[username] = JSON.parse(JSON.stringify(defaultSkillsData));
     localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
 }
 
@@ -443,12 +436,11 @@ let testState = {
     itemsToVerify: []
 };
 
-// Calculate experience needed for next level
+// Experience and level calculations
 function getExpNeeded(level) {
     return 50 + (level * 25);
 }
 
-// Calculate total experience needed to reach a specific level
 function getTotalExpForLevel(level) {
     let total = 0;
     for (let i = 0; i < level; i++) {
@@ -457,85 +449,65 @@ function getTotalExpForLevel(level) {
     return total;
 }
 
-// Calculate current experience within the current level
 function getCurrentLevelExp(totalExp, level) {
-    const expForCurrentLevel = getTotalExpForLevel(level);
-    return totalExp - expForCurrentLevel;
+    return totalExp - getTotalExpForLevel(level);
 }
 
-// Calculate level from total experience
 function calculateLevelFromExp(totalExp) {
     let level = 0;
-    let expNeeded = 0;
-
-    while (expNeeded <= totalExp) {
-        expNeeded += getExpNeeded(level);
-        if (expNeeded <= totalExp) {
-            level++;
-        }
+    while (getTotalExpForLevel(level + 1) <= totalExp) {
+        level++;
     }
-
     return level;
 }
 
-// Calculate total level (based on total experience / 100)
 function calculateTotalLevel() {
-    const totalExp = calculateTotalExp();
-    return Math.floor(totalExp / 100);
+    return Math.floor(calculateTotalExp() / 100);
 }
 
-// Calculate total experience across all skills
 function calculateTotalExp() {
     return Object.values(skillsData).reduce((total, skill) => total + skill.totalExp, 0);
 }
 
-// Check if a skill category is at max level (all items completed)
 function isSkillMaxLevel(skillName) {
-    const skill = skillsData[skillName];
-    return skill.items.every(item => item.completed);
+    return skillsData[skillName].items.every(item => item.completed);
 }
 
-// Check if Lead Skills should be unlocked or locked
+// Skill management functions
 function checkLeadSkillsUnlock() {
     const totalLevel = calculateTotalLevel();
-    if (totalLevel >= 3 && skillsData["Lead Skills"].locked) {
-        skillsData["Lead Skills"].locked = false;
-        renderSkillsGrid();
-    } else if (totalLevel < 3 && !skillsData["Lead Skills"].locked) {
-        skillsData["Lead Skills"].locked = true;
-        // Reset Lead Skills if they become locked again
-        skillsData["Lead Skills"].level = 0;
-        skillsData["Lead Skills"].totalExp = 0;
-        skillsData["Lead Skills"].items.forEach(item => item.completed = false);
-        renderSkillsGrid();
+    const leadSkills = skillsData["Lead Skills"];
+    
+    if (totalLevel >= 3 && leadSkills.locked) {
+        leadSkills.locked = false;
+    } else if (totalLevel < 3 && !leadSkills.locked) {
+        leadSkills.locked = true;
+        leadSkills.level = 0;
+        leadSkills.totalExp = 0;
+        leadSkills.items.forEach(item => item.completed = false);
     }
+    renderSkillsGrid();
 }
 
-// Show test button when progress is 100%
 function checkForTestAvailability() {
     const totalExp = calculateTotalExp();
-    const expInCurrentLevel = totalExp % 100;
-    const progress = (expInCurrentLevel / 100) * 100;
+    const progress = (totalExp % 100);
     const testBtn = document.getElementById('takeTestBtn');
     
-    // Only show when exactly at 100% and not in test
-    if (Math.round(progress) >= 100 && !testState.active) {
+    if (progress >= 99.9 && !testState.active) {
         testBtn.style.display = 'block';
     } else {
         testBtn.style.display = 'none';
     }
 }
 
-// Start the verification test
+// Test functions
 function startVerificationTest() {
     testState.active = true;
-    testState.skillName = "Total Level";
     testState.itemsToVerify = [];
     
-    // Collect all completed items from all skills
     Object.keys(skillsData).forEach(skillName => {
-        const skill = skillsData[skillName];
-        skill.items.forEach(item => {
+        skillsData[skillName].items.forEach(item => {
             if (item.completed && !item.permanent) {
                 testState.itemsToVerify.push({
                     skillName,
@@ -547,14 +519,11 @@ function startVerificationTest() {
         });
     });
     
-    // If no items to verify, skip straight to level up
     if (testState.itemsToVerify.length === 0) {
         completeLevelUpTest();
         return;
     }
     
-    // Show test popup
-    const popup = document.getElementById('testPopup');
     const container = document.getElementById('testItemsContainer');
     container.innerHTML = '';
     
@@ -572,180 +541,131 @@ function startVerificationTest() {
     });
     
     document.getElementById('verifyTestBtn').disabled = true;
-    popup.style.display = 'flex';
+    document.getElementById('testPopup').style.display = 'flex';
 }
 
-// Update verification status of a test item
 function updateTestVerification(index) {
     const checkbox = document.getElementById(`testItem-${index}`);
     testState.itemsToVerify[index].verified = checkbox.checked;
-    
-    // Check if all items are verified
-    const allVerified = testState.itemsToVerify.every(item => item.verified);
-    document.getElementById('verifyTestBtn').disabled = !allVerified;
+    document.getElementById('verifyTestBtn').disabled = 
+        !testState.itemsToVerify.every(item => item.verified);
 }
 
-// Verify test completion and level up
 function verifyTestCompletion() {
     closeTestPopup();
     completeLevelUpTest();
 }
 
-// Complete the level up process
 function completeLevelUpTest() {
-    // Mark all verified items as permanent
     testState.itemsToVerify.forEach(item => {
         if (item.verified) {
-            const skill = skillsData[item.skillName];
-            const skillItem = skill.items.find(i => i.name === item.itemName);
-            if (skillItem) {
-                skillItem.permanent = true;
-            }
+            const skillItem = skillsData[item.skillName].items.find(i => i.name === item.itemName);
+            if (skillItem) skillItem.permanent = true;
         }
     });
     
-    // Save to localStorage
-    allHotelData[username] = skillsData;
     localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+    showLevelUpPopup("Total Level", calculateTotalLevel() + 1);
     
-    // Show level up message
-    const totalLevel = calculateTotalLevel();
-    showLevelUpPopup("Total Level", totalLevel + 1);
-    
-    // Reset test state
     testState.active = false;
-    testState.skillName = null;
     testState.itemsToVerify = [];
-    
-    // Update display
     updateDisplay();
 }
 
-// Close test popup
-function closeTestPopup() {
-    document.getElementById('testPopup').style.display = 'none';
-}
-
-// Show level up popup
+// UI functions
 function showLevelUpPopup(skillName, newLevel) {
-    const popup = document.getElementById('levelUpPopup');
-    const message = document.getElementById('levelUpMessage');
-    if (skillName === "Total Level") {
-        message.textContent = `Congratulations! You reached Total Level ${newLevel}!`;
-    } else {
-        message.textContent = `${skillName} reached Level ${newLevel}!`;
-    }
-    popup.style.display = 'flex';
+    document.getElementById('levelUpMessage').textContent = 
+        skillName === "Total Level" 
+            ? `Congratulations! You reached Total Level ${newLevel}!` 
+            : `${skillName} reached Level ${newLevel}!`;
+    document.getElementById('levelUpPopup').style.display = 'flex';
 }
 
-// Show max level popup
 function showMaxLevelPopup(skillName) {
-    const popup = document.getElementById('levelUpPopup');
-    const message = document.getElementById('levelUpMessage');
-    message.textContent = `🎉 Congratulations! You've reached MAX LEVEL in ${skillName}! 🎉`;
-    popup.style.display = 'flex';
+    document.getElementById('levelUpMessage').textContent = 
+        `🎉 Congratulations! You've reached MAX LEVEL in ${skillName}! 🎉`;
+    document.getElementById('levelUpPopup').style.display = 'flex';
 }
 
-// Close level up popup
 function closeLevelUpPopup() {
     document.getElementById('levelUpPopup').style.display = 'none';
 }
 
-// Handle skill item completion/deselection
+function closeTestPopup() {
+    document.getElementById('testPopup').style.display = 'none';
+}
+
 function toggleSkillItem(skillName, itemIndex) {
-    const skill = skillsData[skillName];
-    const item = skill.items[itemIndex];
-    
-    // Don't allow changes to permanent items
-    if (item.permanent) {
-        return;
-    }
+    const item = skillsData[skillName].items[itemIndex];
+    if (item.permanent) return;
     
     const previousTotalLevel = calculateTotalLevel();
-    const previousLevel = skill.level;
+    const previousLevel = skillsData[skillName].level;
 
     if (item.completed) {
-        // Deselecting - remove experience
         item.completed = false;
-        skill.totalExp = Math.max(0, skill.totalExp - item.exp);
+        skillsData[skillName].totalExp -= item.exp;
     } else {
-        // Selecting - add experience
         item.completed = true;
-        skill.totalExp += item.exp;
+        skillsData[skillName].totalExp += item.exp;
     }
-    allHotelData[username] = skillsData;
+    
     localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
-
-    // Recalculate skill level based on total experience
-    const newLevel = calculateLevelFromExp(skill.totalExp);
-
-    // Show level up popup if skill leveled up
+    
+    const newLevel = calculateLevelFromExp(skillsData[skillName].totalExp);
+    skillsData[skillName].level = newLevel;
+    
     if (newLevel > previousLevel) {
-        skill.level = newLevel;
         showLevelUpPopup(skillName, newLevel);
-    } else {
-        skill.level = newLevel;
     }
-
-    // Check for total level up (every 100 total exp)
+    
     const newTotalLevel = calculateTotalLevel();
     if (newTotalLevel > previousTotalLevel) {
-        setTimeout(() => {
-            showLevelUpPopup("Total Level", newTotalLevel);
-        }, 1000);
+        setTimeout(() => showLevelUpPopup("Total Level", newTotalLevel), 1000);
     }
-
-    // Check if skill category reached max level
-    if (isSkillMaxLevel(skillName) && item.completed) {
-        setTimeout(() => {
-            showMaxLevelPopup(skillName);
-        }, 1500);
+    
+    if (isSkillMaxLevel(skillName) {
+        setTimeout(() => showMaxLevelPopup(skillName), 1500);
     }
-
+    
     checkLeadSkillsUnlock();
     updateDisplay();
 }
 
-// Update all displays
 function updateDisplay() {
     updateTotalLevel();
     renderSkillsGrid();
-    if (document.getElementById('skillDetail').style.display !== 'none') {
-        const currentSkill = document.getElementById('detailSkillName').textContent;
-        showSkillDetail(currentSkill);
-    }
     checkForTestAvailability();
+    
+    if (document.getElementById('skillDetail').style.display !== 'none') {
+        showSkillDetail(document.getElementById('detailSkillName').textContent);
+    }
 }
 
-// Update total level display
 function updateTotalLevel() {
-    const totalLevel = calculateTotalLevel();
     const totalExp = calculateTotalExp();
-
+    const totalLevel = calculateTotalLevel();
+    const progress = (totalExp % 100);
+    
     document.getElementById('totalLevel').textContent = totalLevel;
     document.getElementById('totalExp').textContent = totalExp;
-
-    // Calculate progress to next total level (every 100 exp)
-    const expInCurrentLevel = totalExp % 100;
-    const progress = (expInCurrentLevel / 100) * 100;
     document.getElementById('totalExpFill').style.width = `${progress}%`;
 }
 
-// Render skills grid
 function renderSkillsGrid() {
     const grid = document.getElementById('skillsGrid');
     grid.innerHTML = '';
-
+    
     Object.keys(skillsData).forEach(skillName => {
         const skill = skillsData[skillName];
         const card = document.createElement('div');
         card.className = `skill-card ${skill.locked ? 'locked' : ''}`;
-
+        
         const expNeeded = getExpNeeded(skill.level);
-        const currentLevelExp = getCurrentLevelExp(skill.totalExp, skill.level);
-        const expProgress = (skill.level > 0 || currentLevelExp > 0) ? (currentLevelExp / expNeeded) * 100 : 0;
+        const currentExp = getCurrentLevelExp(skill.totalExp, skill.level);
+        const progress = (skill.level > 0 || currentExp > 0) ? (currentExp / expNeeded) * 100 : 0;
         const isMaxLevel = isSkillMaxLevel(skillName);
-
+        
         card.innerHTML = `
             <div class="skill-header">
                 <h3 class="skill-name">${skillName}</h3>
@@ -754,44 +674,40 @@ function renderSkillsGrid() {
             <div class="skill-exp">
                 ${skill.locked ? '<div class="lock-icon">🔒</div>' :
                 isMaxLevel ? '<div style="color: #48bb78; font-weight: bold; text-align: center;">🏆 COMPLETED 🏆</div>' :
-                `<div>Experience: ${currentLevelExp} / ${expNeeded}</div>
+                `<div>Experience: ${currentExp} / ${expNeeded}</div>
                  <div class="skill-exp-bar">
-                     <div class="skill-exp-fill" style="width: ${expProgress}%"></div>
+                     <div class="skill-exp-fill" style="width: ${progress}%"></div>
                  </div>`}
             </div>
         `;
-
+        
         if (!skill.locked) {
             card.onclick = () => showSkillDetail(skillName);
         }
-
+        
         grid.appendChild(card);
     });
 }
 
-// Show skill detail page
 function showSkillDetail(skillName) {
     const skill = skillsData[skillName];
-
-    document.getElementById('mainPage').style.display = 'none';
-    document.getElementById('skillDetail').style.display = 'block';
-
     const isMaxLevel = isSkillMaxLevel(skillName);
     const expNeeded = getExpNeeded(skill.level);
-    const currentLevelExp = getCurrentLevelExp(skill.totalExp, skill.level);
-
+    const currentExp = getCurrentLevelExp(skill.totalExp, skill.level);
+    const progress = (skill.level > 0 || currentExp > 0) ? (currentExp / expNeeded) * 100 : 0;
+    
+    document.getElementById('mainPage').style.display = 'none';
+    document.getElementById('skillDetail').style.display = 'block';
+    
     document.getElementById('detailSkillName').textContent = skillName;
     document.getElementById('detailSkillLevel').textContent = isMaxLevel ? 'MAX LEVEL' : `Level ${skill.level}`;
-    document.getElementById('detailSkillExp').textContent = currentLevelExp;
+    document.getElementById('detailSkillExp').textContent = currentExp;
     document.getElementById('detailSkillExpNeeded').textContent = expNeeded;
-
-    const expProgress = (skill.level > 0 || currentLevelExp > 0) ? (currentLevelExp / expNeeded) * 100 : 0;
-    document.getElementById('detailSkillExpFill').style.width = `${expProgress}%`;
-
-    // Render skill items
+    document.getElementById('detailSkillExpFill').style.width = `${progress}%`;
+    
     const itemsContainer = document.getElementById('skillItems');
     itemsContainer.innerHTML = '';
-
+    
     if (isMaxLevel) {
         const maxLevelDiv = document.createElement('div');
         maxLevelDiv.style.textAlign = 'center';
@@ -803,31 +719,24 @@ function showSkillDetail(skillName) {
         maxLevelDiv.innerHTML = '🏆 CONGRATULATIONS! 🏆<br>You have completed all skills in this category!';
         itemsContainer.appendChild(maxLevelDiv);
     }
-
+    
     skill.items.forEach((item, index) => {
         const itemDiv = document.createElement('div');
         itemDiv.className = 'skill-item';
         
-        let checkboxLabel = '';
-        if (item.permanent) {
-            checkboxLabel = `
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <span style="color: #48bb78; font-weight: bold;">
-                        ✓ Verified and Permanent
-                    </span>
-                    <input type="checkbox" checked disabled style="margin-left: 10px;">
-                </div>
-            `;
-        } else {
-            checkboxLabel = `
-                <label style="display: flex; align-items: center;">
-                    <input type="checkbox" class="skill-checkbox" 
-                        ${item.completed ? 'checked' : ''} 
-                        onchange="toggleSkillItem('${skillName}', ${index})">
-                    <span>${item.completed ? 'Completed (click to unselect)' : 'Mark as completed'}</span>
-                </label>
-            `;
-        }
+        const checkboxLabel = item.permanent 
+            ? `<div style="display: flex; align-items: center; justify-content: space-between;">
+                  <span style="color: #48bb78; font-weight: bold;">
+                      ✓ Verified and Permanent
+                  </span>
+                  <input type="checkbox" checked disabled style="margin-left: 10px;">
+               </div>`
+            : `<label style="display: flex; align-items: center;">
+                  <input type="checkbox" class="skill-checkbox" 
+                      ${item.completed ? 'checked' : ''} 
+                      onchange="toggleSkillItem('${skillName}', ${index})">
+                  <span>${item.completed ? 'Completed (click to unselect)' : 'Mark as completed'}</span>
+               </label>`;
         
         itemDiv.innerHTML = `
             <div class="skill-item-header">
@@ -840,7 +749,6 @@ function showSkillDetail(skillName) {
     });
 }
 
-// Show main page
 function showMainPage() {
     document.getElementById('mainPage').style.display = 'block';
     document.getElementById('skillDetail').style.display = 'none';
@@ -855,9 +763,6 @@ function init() {
 
 // Start the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', init);
-
-  // Start the application
-  init();
 </script>
 </body>
 </html>
