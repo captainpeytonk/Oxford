@@ -592,30 +592,43 @@
   }
 
   // Complete the level up process
+  // Complete the level up process - FIXED VERSION
   function completeLevelUpTest() {
-      // Mark all verified items as permanent
+      // Mark all verified items as permanent and completed
       testState.itemsToVerify.forEach(item => {
           if (item.verified) {
               const skill = skillsData[item.skillName];
               const skillItem = skill.items.find(i => i.name === item.itemName);
               if (skillItem) {
                   skillItem.permanent = true;
+                  skillItem.completed = true; // Ensure it stays completed
               }
           }
       });
       
+        // Calculate new total level (current floor + 1)
+      const currentTotalExp = calculateTotalExp();
+      const currentFloor = Math.floor(currentTotalExp / 100);
+      const newTotalLevel = currentFloor + 1;
+      
       // Save to localStorage
-      allHotelData[username] = skillsData;
-      localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+      try {
+          allHotelData[username] = skillsData;
+          localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+      } catch (e) {
+          console.error("Failed to save data:", e);
+      }
       
       // Show level up message
-      const totalLevel = calculateTotalLevel();
-      showLevelUpPopup("Total Level", totalLevel + 1);
+      showLevelUpPopup("Total Level", newTotalLevel);
       
       // Reset test state
       testState.active = false;
       testState.skillName = null;
       testState.itemsToVerify = [];
+      
+      // Hide test button until next level
+      document.getElementById('takeTestBtn').style.display = 'none';
       
       // Update display
       updateDisplay();
@@ -1023,7 +1036,7 @@ function updateTotalLevel() {
       document.getElementById('skillDetail').style.display = 'none';
   }
 
-  // Initialize the application
+ // Initialize the application
   function init() {
       checkLeadSkillsUnlock();
       updateDisplay();
