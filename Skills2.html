@@ -486,15 +486,9 @@
         };
 
         // State management
-let skillProgress = {};
-const userData = localStorage.getItem('loggedInUser');
-if (userData) {
-  const user = JSON.parse(userData);
-  const allUsers = JSON.parse(localStorage.getItem('users') || '{}');
-  if (user.username && allUsers[user.username]?.skillProgress) {
-    skillProgress = allUsers[user.username].skillProgress;
-  }
-}
+        let currentView = 'categories';
+        let currentCategory = null;
+        let skillProgress = JSON.parse(localStorage.getItem('skillProgress') || '{}');
 
         // Initialize the application
         function init() {
