@@ -729,8 +729,19 @@
       document.getElementById('totalExpFill').style.width = `${progress}%`;
       
       // Check if test should be available
-      checkForTestAvailability();
-  }
+function checkForTestAvailability() {
+    const totalExp = calculateTotalExp();
+    const expInCurrentLevel = totalExp % 100;
+    const progress = (expInCurrentLevel / 100) * 100;
+    const testBtn = document.getElementById('takeTestBtn');
+    
+    // Only show when exactly at 100% and not in test
+    if (Math.round(progress) >= 100 && !testState.active) {
+        testBtn.style.display = 'block';
+    } else {
+        testBtn.style.display = 'none';
+    }
+}
 
   // Render skills grid
   function renderSkillsGrid() {
