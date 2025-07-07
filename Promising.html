@@ -469,7 +469,7 @@ function calculateTotalExp() {
     return Object.values(skillsData).reduce((total, skill) => total + skill.totalExp, 0);
 }
 
-function isSkillMaxLevel(skillName) {
+function (isSkillMaxLevel(skillName)) {
     return skillsData[skillName].items.every(item => item.completed);
 }
 
