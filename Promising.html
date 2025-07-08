@@ -718,9 +718,12 @@ userData.actualLevel = userData.testLevel;
 userData.canTakeTest = false;
 userData.testLevel = 0;
 
+// ✅ Update both skillsData and userData before saving
+allHotelData[username] = skillsData;
+allHotelData[username].userData = userData;
 
-  allHotelData[username].userData = userData;
-  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+
 
   closeTestPopup();
   showLevelUpPopup("Total Level", userData.actualLevel);
