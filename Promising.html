@@ -643,24 +643,24 @@
     const skillCategories = Object.keys(skillsData).filter(key => key !== 'Lead Skills' && !skillsData[key].locked);
     
     // Take 2-3 random items from different categories
-    const shuffledCategories = skillCategories.sort(() => 0.5 - Math.random());
-    const numItems = Math.min(3, shuffledCategories.length);
-    
-    for (let i = 0; i < numItems; i++) {
-      const category = shuffledCategories[i];
-      const categoryItems = skillsData[category].items;
-      if (categoryItems.length > 0) {
-        const randomItem = categoryItems[Math.floor(Math.random() * categoryItems.length)];
-        testItems.push({
-          name: randomItem.name,
-          category: category,
-          exp: randomItem.exp
-        });
-      }
-    }
-    
-    return testItems;
-  }
+function generateTestItems() {
+  const testItems = [];
+
+  Object.keys(skillsData).forEach(category => {
+    if (category === 'Lead Skills' || skillsData[category].locked) return;
+
+    const items = skillsData[category].items || [];
+    items.forEach(item => {
+      testItems.push({
+        name: item.name,
+        category: category,
+        exp: item.exp
+      });
+    });
+  });
+
+  return testItems;
+}
 
   // Update test progress
   function updateTestProgress() {
