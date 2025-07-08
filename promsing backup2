@@ -419,9 +419,10 @@
             <div class="test-content" id="testContent">
                 <!-- Test items will be generated here -->
             </div>
-            <button class="test-submit" id="testSubmit" onclick="submitTest()" disabled>
-                Submit Test
-            </button>
+<input type="password" id="managerApprovalPassword" placeholder="Manager password to approve" class="w-full p-2 mt-3 border border-gray-300 rounded-md" />
+<button class="test-submit" id="testSubmit" onclick="submitTest()" disabled>
+  Submit Test
+</button>
             <button class="popup-close" onclick="closeTestPopup()">Cancel</button>
         </div>
     </div>
@@ -637,29 +638,27 @@
   }
 
   // Generate test items based on current skills
-  function generateTestItems() {
-    const testItems = [];
-    const skillCategories = Object.keys(skillsData).filter(key => key !== 'Lead Skills' && !skillsData[key].locked);
-    
-    // Take 2-3 random items from different categories
-    const shuffledCategories = skillCategories.sort(() => 0.5 - Math.random());
-    const numItems = Math.min(3, shuffledCategories.length);
-    
-    for (let i = 0; i < numItems; i++) {
-      const category = shuffledCategories[i];
-      const categoryItems = skillsData[category].items;
-      if (categoryItems.length > 0) {
-        const randomItem = categoryItems[Math.floor(Math.random() * categoryItems.length)];
+function generateTestItems() {
+  const testItems = [];
+
+  Object.keys(skillsData).forEach(category => {
+    if (category === 'Lead Skills' || skillsData[category].locked) return;
+
+    const items = skillsData[category].items || [];
+    items.forEach(item => {
+      if (item.completed) {
         testItems.push({
-          name: randomItem.name,
+          name: item.name,
           category: category,
-          exp: randomItem.exp
+          exp: item.exp
         });
       }
-    }
-    
-    return testItems;
-  }
+    });
+  });
+
+  return testItems;
+}
+
 
   // Update test progress
   function updateTestProgress() {
@@ -678,26 +677,42 @@
   }
 
   // Submit test
-  function submitTest() {
-    const checkboxes = document.querySelectorAll('#testContent input[type="checkbox"]');
-    const checked = document.querySelectorAll('#testContent input[type="checkbox"]:checked');
-    
-    if (checked.length === checkboxes.length && checkboxes.length > 0) {
-      // Test passed - advance to next level
-      userData.actualLevel = userData.testLevel;
-      userData.canTakeTest = false;
-      userData.testLevel = 0;
-      
-      // Save data
-      allHotelData[username].userData = userData;
-      localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
-      
-      closeTestPopup();
-      showLevelUpPopup("Total Level", userData.actualLevel);
-      checkLeadSkillsUnlock();
-      updateDisplay();
-    }
+function submitTest() {
+  const checkboxes = document.querySelectorAll('#testContent input[type="checkbox"]');
+  const checked = document.querySelectorAll('#testContent input[type="checkbox"]:checked');
+  const passwordInput = document.getElementById('managerApprovalPassword');
+  const enteredPassword = passwordInput.value.trim();
+
+  if (checked.length !== checkboxes.length || checkboxes.length === 0) {
+    alert("Please complete all test items.");
+    return;
   }
+
+  // Get manager profiles from localStorage
+  const profiles = JSON.parse(localStorage.getItem('profiles') || '[]');
+  const managerProfiles = profiles.filter(p => p.role === 'manager');
+
+  // Check if entered password matches any manager's password
+  const managerApproved = managerProfiles.some(manager => manager.password === enteredPassword);
+
+  if (!managerApproved) {
+    alert("Invalid manager password. Test cannot be submitted.");
+    return;
+  }
+
+  // Test approved, update level
+  userData.actualLevel = userData.testLevel;
+  userData.canTakeTest = false;
+  userData.testLevel = 0;
+
+  allHotelData[username].userData = userData;
+  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+
+  closeTestPopup();
+  showLevelUpPopup("Total Level", userData.actualLevel);
+  checkLeadSkillsUnlock();
+  updateDisplay();
+}
 
   // Close test popup
   function closeTestPopup() {
