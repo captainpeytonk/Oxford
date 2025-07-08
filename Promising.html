@@ -646,16 +646,19 @@ function generateTestItems() {
 
     const items = skillsData[category].items || [];
     items.forEach(item => {
-      testItems.push({
-        name: item.name,
-        category: category,
-        exp: item.exp
-      });
+      if (item.completed) {
+        testItems.push({
+          name: item.name,
+          category: category,
+          exp: item.exp
+        });
+      }
     });
   });
 
   return testItems;
 }
+
 
   // Update test progress
   function updateTestProgress() {
