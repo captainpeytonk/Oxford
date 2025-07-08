@@ -701,9 +701,23 @@ function submitTest() {
   }
 
   // Test approved, update level
-  userData.actualLevel = userData.testLevel;
-  userData.canTakeTest = false;
-  userData.testLevel = 0;
+// Lock all tested items (completed items from unlocked categories)
+Object.keys(skillsData).forEach(category => {
+  if (category === 'Lead Skills' || skillsData[category].locked) return;
+
+  const items = skillsData[category].items || [];
+  items.forEach(item => {
+    if (item.completed) {
+      item.locked = true; // mark as locked
+    }
+  });
+});
+
+// Then update user level
+userData.actualLevel = userData.testLevel;
+userData.canTakeTest = false;
+userData.testLevel = 0;
+
 
   allHotelData[username].userData = userData;
   localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
@@ -745,11 +759,16 @@ function submitTest() {
   }
 
   // Handle skill item completion/deselection
-  function toggleSkillItem(skillName, itemIndex) {
-    const skill = skillsData[skillName];
-    const item = skill.items[itemIndex];
+function toggleSkillItem(skillName, itemIndex) {
+  const skill = skillsData[skillName];
+  const item = skill.items[itemIndex];
 
-    const previousLevel = skill.level;
+  if (item.locked) {
+    alert("This skill has been locked after passing the test and cannot be changed.");
+    return;
+  }
+
+  const previousLevel = skill.level;
 
     if (item.completed) {
       // Deselecting - remove experience
@@ -906,9 +925,10 @@ function submitTest() {
           <span class="skill-item-exp">+${item.exp} EXP</span>
         </div>
         <label>
-          <input type="checkbox" class="skill-checkbox" 
-            ${item.completed ? 'checked' : ''} 
-            onchange="toggleSkillItem('${skillName}', ${index})">
+<input type="checkbox" class="skill-checkbox" 
+  ${item.completed ? 'checked' : ''} 
+  ${item.locked ? 'disabled' : ''}
+  onchange="toggleSkillItem('${skillName}', ${index})">
           ${item.completed ? 'Completed (click to unselect)' : 'Mark as completed'}
         </label>
       `;
