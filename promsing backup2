@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Skills Training</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .test-btn {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #f6ad55, #ed8936);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .test-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .test-btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+            50% { box-shadow: 0 4px 25px rgba(246, 173, 85, 0.4); }
+            100% { box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        }
+
+        .total-level {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .total-level h2 {
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .exp-bar {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 25px;
+            height: 30px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .exp-fill {
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 25px;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .skill-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .skill-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: rgba(200, 200, 200, 0.5);
+        }
+
+        .skill-card.locked:hover {
+            transform: none;
+        }
+
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .skill-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .skill-level {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .skill-exp {
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .skill-exp-bar {
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 15px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .skill-exp-fill {
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: transform 0.2s ease;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .skill-detail {
+            display: none;
+        }
+
+        #mainPage {
+            display: block;
+        }
+
+        .skill-items {
+            margin-top: 20px;
+        }
+
+        .skill-item {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .skill-item:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+
+        .skill-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .skill-item-name {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .skill-item-exp {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .skill-checkbox {
+            margin-left: 10px;
+            cursor: pointer;
+            transform: scale(1.2);
+        }
+
+        .skill-checkbox:checked {
+            accent-color: #667eea;
+        }
+
+        .skill-checkbox:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: popupScale 0.3s ease;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        @keyframes popupScale {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .popup h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .popup-close {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .lock-icon {
+            font-size: 2rem;
+            color: #a0aec0;
+        }
+
+        .test-content {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .test-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-item label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .test-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .test-submit {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .test-submit:hover {
+            transform: scale(1.05);
+        }
+
+        .test-submit:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        .test-progress {
+            margin: 15px 0;
+            color: #666;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<header>
+  <nav>
+    <ul>
+      <li><a href="Profile1.html">Home</a></li>
+    </ul>
+  </nav>
+</header>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="test-btn" id="testBtn" onclick="showLevelTest()" disabled>
+                🎯 Take Level Test
+            </button>
+            <h1>🏨 Hotel Skills Training</h1>
+            <p>Master your hospitality skills and advance your career</p>
+        </div>
+
+        <div id="mainPage">
+            <div class="total-level">
+                <h2>Total Level: <span id="totalLevel">0</span></h2>
+                <div class="exp-bar">
+                    <div class="exp-fill" id="totalExpFill" style="width: 0%"></div>
+                </div>
+                <p>Total Experience: <span id="totalExp">0</span></p>
+            </div>
+
+            <div class="skills-grid" id="skillsGrid">
+                <!-- Skills will be generated here -->
+            </div>
+        </div>
+
+        <div id="skillDetail" class="skill-detail" style="display: none;">
+            <button class="back-btn" onclick="showMainPage()">← Back to Skills</button>
+            <div class="skill-card">
+                <div class="skill-header">
+                    <h2 class="skill-name" id="detailSkillName"></h2>
+                    <div class="skill-level" id="detailSkillLevel">Level 0</div>
+                </div>
+                <div class="skill-exp">
+                    <div>Experience: <span id="detailSkillExp">0</span> / <span id="detailSkillExpNeeded">50</span></div>
+                    <div class="skill-exp-bar">
+                        <div class="skill-exp-fill" id="detailSkillExpFill" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="skill-items" id="skillItems">
+                    <!-- Skill items will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup" id="levelUpPopup">
+        <div class="popup-content">
+            <h3>🎉 Congratulations!</h3>
+            <p id="levelUpMessage"></p>
+            <button class="popup-close" onclick="closeLevelUpPopup()">Continue</button>
+        </div>
+    </div>
+
+    <div class="popup" id="testPopup">
+        <div class="popup-content">
+            <h3>🎯 Level Test</h3>
+            <p>Complete all the tasks below to advance to the next level!</p>
+            <div class="test-progress" id="testProgress">Progress: 0/0</div>
+            <div class="test-content" id="testContent">
+                <!-- Test items will be generated here -->
+            </div>
+            <button class="test-submit" id="testSubmit" onclick="submitTest()" disabled>
+                Submit Test
+            </button>
+            <button class="popup-close" onclick="closeTestPopup()">Cancel</button>
+        </div>
+    </div>
+
+<script>
+  // Step 1: Define the default data structure (DO NOT mutate this)
+  const defaultSkillsData = {
+    "Cloudbeds Skills": {
+      level: 0,
+      totalExp: 0,
+      items: [
+        { name: "Take a payment", exp: 20, completed: false }
+      ]
+    },
+    "Reception": {
+      level: 0,
+      totalExp: 0,
+      items: [
+        { name: "Answer phone professionally", exp: 12, completed: false },
+        { name: "Handle guest complaints", exp: 18, completed: false }
+      ]
+    },
+    "Running Events": {
+      level: 0,
+      totalExp: 0,
+      items: [
+        { name: "Coordinate with vendors", exp: 25, completed: false }
+      ]
+    },
+    "Laundry/Folding": {
+      level: 0,
+      totalExp: 0,
+      items: [
+        { name: "Fold bed sheets", exp: 8, completed: false },
+        { name: "Sort laundry by type", exp: 12, completed: false }
+      ]
+    },
+    "Cleaning": {
+      level: 0,
+      totalExp: 0,
+      items: [
+        { name: "Dust furniture", exp: 8, completed: false }
+      ]
+    },
+    "Beds": {
+      level: 0,
+      totalExp: 0,
+      items: [
+        { name: "Arrange decorative pillows", exp: 15, completed: false }
+      ]
+    },
+    "Fire Training": {
+      level: 0,
+      totalExp: 0,
+      items: [
+        { name: "Fire safety procedures", exp: 30, completed: false },
+        { name: "Emergency evacuation", exp: 25, completed: false }
+      ]
+    },
+    "Lead Skills": {
+      level: 0,
+      totalExp: 0,
+      locked: true,
+      items: [
+        { name: "Performance reviews", exp: 45, completed: false }
+      ]
+    }
+  };
+
+  // Step 2: Get current user and user-specific skills data
+  const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+  const username = loggedInUser?.name || 'guest';
+  let allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
+
+  if (!allHotelData[username]) {
+    allHotelData[username] = structuredClone(defaultSkillsData);
+    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+  }
+
+  let skillsData = allHotelData[username];
+
+  // Add user-specific data for test tracking
+  if (!allHotelData[username].userData) {
+    allHotelData[username].userData = {
+      canTakeTest: false,
+      testLevel: 0,
+      actualLevel: 0
+    };
+    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+  }
+
+  let userData = allHotelData[username].userData;
+
+  // Calculate experience needed for next level
+  function getExpNeeded(level) {
+    return 50 + (level * 25);
+  }
+
+  // Calculate total experience needed to reach a specific level
+  function getTotalExpForLevel(level) {
+    let total = 0;
+    for (let i = 0; i < level; i++) {
+      total += getExpNeeded(i);
+    }
+    return total;
+  }
+
+  // Calculate current experience within the current level
+  function getCurrentLevelExp(totalExp, level) {
+    const expForCurrentLevel = getTotalExpForLevel(level);
+    return totalExp - expForCurrentLevel;
+  }
+
+  // Calculate level from total experience
+  function calculateLevelFromExp(totalExp) {
+    let level = 0;
+    let expNeeded = 0;
+
+    while (expNeeded <= totalExp) {
+      expNeeded += getExpNeeded(level);
+      if (expNeeded <= totalExp) {
+        level++;
+      }
+    }
+
+    return level;
+  }
+
+  // Calculate total level (based on total experience / 100)
+  function calculateTotalLevel() {
+    const totalExp = calculateTotalExp();
+    const calculatedLevel = Math.floor(totalExp / 100);
+    
+    // Check if user can take test (has enough exp for next level but hasn't taken test)
+    if (calculatedLevel > userData.actualLevel && !userData.canTakeTest) {
+      userData.canTakeTest = true;
+      userData.testLevel = calculatedLevel;
+    }
+    
+    return userData.actualLevel;
+  }
+
+  // Calculate total experience across all skills
+  function calculateTotalExp() {
+    let total = 0;
+    Object.keys(skillsData).forEach(skillName => {
+      if (skillsData[skillName] && typeof skillsData[skillName].totalExp === 'number') {
+        total += skillsData[skillName].totalExp;
+      }
+    });
+    return total;
+  }
+
+  // Check if a skill category is at max level (all items completed)
+  function isSkillMaxLevel(skillName) {
+    const skill = skillsData[skillName];
+    return skill && skill.items && skill.items.every(item => item.completed);
+  }
+
+  // Check if Lead Skills should be unlocked or locked
+  function checkLeadSkillsUnlock() {
+    const totalLevel = userData.actualLevel;
+    if (totalLevel >= 3 && skillsData["Lead Skills"].locked) {
+      skillsData["Lead Skills"].locked = false;
+      renderSkillsGrid();
+    } else if (totalLevel < 3 && !skillsData["Lead Skills"].locked) {
+      skillsData["Lead Skills"].locked = true;
+      // Reset Lead Skills if they become locked again
+      skillsData["Lead Skills"].level = 0;
+      skillsData["Lead Skills"].totalExp = 0;
+      skillsData["Lead Skills"].items.forEach(item => item.completed = false);
+      renderSkillsGrid();
+    }
+  }
+
+  // Update test button state
+  function updateTestButton() {
+    const testBtn = document.getElementById('testBtn');
+    if (userData.canTakeTest) {
+      testBtn.disabled = false;
+      testBtn.textContent = `🎯 Take Level ${userData.testLevel} Test`;
+    } else {
+      testBtn.disabled = true;
+      testBtn.textContent = '🎯 Take Level Test';
+    }
+  }
+
+  // Show level test popup
+  function showLevelTest() {
+    if (!userData.canTakeTest) return;
+    
+    const popup = document.getElementById('testPopup');
+    const testContent = document.getElementById('testContent');
+    
+    // Generate test items (random selection from all incomplete skills)
+    const testItems = generateTestItems();
+    
+    testContent.innerHTML = '';
+    testItems.forEach((item, index) => {
+      const testItem = document.createElement('div');
+      testItem.className = 'test-item';
+      testItem.innerHTML = `
+        <label>
+          <input type="checkbox" onchange="updateTestProgress()" data-test-item="${index}">
+          ${item.name} (${item.category})
+        </label>
+      `;
+      testContent.appendChild(testItem);
+    });
+    
+    updateTestProgress();
+    popup.style.display = 'flex';
+  }
+
+  // Generate test items based on current skills
+  function generateTestItems() {
+    const testItems = [];
+    const skillCategories = Object.keys(skillsData).filter(key => key !== 'Lead Skills' && !skillsData[key].locked);
+    
+    // Take 2-3 random items from different categories
+    const shuffledCategories = skillCategories.sort(() => 0.5 - Math.random());
+    const numItems = Math.min(3, shuffledCategories.length);
+    
+    for (let i = 0; i < numItems; i++) {
+      const category = shuffledCategories[i];
+      const categoryItems = skillsData[category].items;
+      if (categoryItems.length > 0) {
+        const randomItem = categoryItems[Math.floor(Math.random() * categoryItems.length)];
+        testItems.push({
+          name: randomItem.name,
+          category: category,
+          exp: randomItem.exp
+        });
+      }
+    }
+    
+    return testItems;
+  }
+
+  // Update test progress
+  function updateTestProgress() {
+    const checkboxes = document.querySelectorAll('#testContent input[type="checkbox"]');
+    const checked = document.querySelectorAll('#testContent input[type="checkbox"]:checked');
+    const progress = document.getElementById('testProgress');
+    const submitBtn = document.getElementById('testSubmit');
+    
+    progress.textContent = `Progress: ${checked.length}/${checkboxes.length}`;
+    
+    if (checked.length === checkboxes.length && checkboxes.length > 0) {
+      submitBtn.disabled = false;
+    } else {
+      submitBtn.disabled = true;
+    }
+  }
+
+  // Submit test
+  function submitTest() {
+    const checkboxes = document.querySelectorAll('#testContent input[type="checkbox"]');
+    const checked = document.querySelectorAll('#testContent input[type="checkbox"]:checked');
+    
+    if (checked.length === checkboxes.length && checkboxes.length > 0) {
+      // Test passed - advance to next level
+      userData.actualLevel = userData.testLevel;
+      userData.canTakeTest = false;
+      userData.testLevel = 0;
+      
+      // Save data
+      allHotelData[username].userData = userData;
+      localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+      
+      closeTestPopup();
+      showLevelUpPopup("Total Level", userData.actualLevel);
+      checkLeadSkillsUnlock();
+      updateDisplay();
+    }
+  }
+
+  // Close test popup
+  function closeTestPopup() {
+    document.getElementById('testPopup').style.display = 'none';
+  }
+
+  // Show level up popup
+  function showLevelUpPopup(skillName, newLevel) {
+    const popup = document.getElementById('levelUpPopup');
+    const message = document.getElementById('levelUpMessage');
+    if (skillName === "Total Level") {
+      message.textContent = `Congratulations! You reached Total Level ${newLevel}!`;
+    } else {
+      message.textContent = `${skillName} reached Level ${newLevel}!`;
+    }
+    popup.style.display = 'flex';
+  }
+
+  // Show max level popup
+  function showMaxLevelPopup(skillName) {
+    const popup = document.getElementById('levelUpPopup');
+    const message = document.getElementById('levelUpMessage');
+    message.textContent = `🎉 Congratulations! You've reached MAX LEVEL in ${skillName}! 🎉`;
+    popup.style.display = 'flex';
+  }
+
+  // Close level up popup
+  function closeLevelUpPopup() {
+    document.getElementById('levelUpPopup').style.display = 'none';
+  }
+
+  // Handle skill item completion/deselection
+  function toggleSkillItem(skillName, itemIndex) {
+    const skill = skillsData[skillName];
+    const item = skill.items[itemIndex];
+
+    const previousLevel = skill.level;
+
+    if (item.completed) {
+      // Deselecting - remove experience
+      item.completed = false;
+      skill.totalExp = Math.max(0, skill.totalExp - item.exp);
+    } else {
+      // Selecting - add experience
+      item.completed = true;
+      skill.totalExp += item.exp;
+    }
+    
+    allHotelData[username] = skillsData;
+    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+
+    // Recalculate skill level based on total experience
+    const newLevel = calculateLevelFromExp(skill.totalExp);
+
+    // Show level up popup if skill leveled up
+    if (newLevel > previousLevel) {
+      skill.level = newLevel;
+      showLevelUpPopup(skillName, newLevel);
+    } else {
+      skill.level = newLevel;
+    }
+
+    // Check if skill category reached max level
+    if (isSkillMaxLevel(skillName) && item.completed) {
+      setTimeout(() => {
+        showMaxLevelPopup(skillName);
+      }, 1500);
+    }
+
+    // Check if user can take test for next total level
+    const totalExp = calculateTotalExp();
+    const calculatedLevel = Math.floor(totalExp / 100);
+    if (calculatedLevel > userData.actualLevel && !userData.canTakeTest) {
+      userData.canTakeTest = true;
+      userData.testLevel = calculatedLevel;
+      allHotelData[username].userData = userData;
+      localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+    }
+
+    updateDisplay();
+  }
+
+  // Update all displays
+  function updateDisplay() {
+    updateTotalLevel();
+    updateTestButton();
+    renderSkillsGrid();
+    if (document.getElementById('skillDetail').style.display !== 'none') {
+      const currentSkill = document.getElementById('detailSkillName').textContent;
+      showSkillDetail(currentSkill);
+    }
+  }
+
+  // Update total level display
+  function updateTotalLevel() {
+    const totalLevel = calculateTotalLevel();
+    const totalExp = calculateTotalExp();
+
+    document.getElementById('totalLevel').textContent = totalLevel;
+    document.getElementById('totalExp').textContent = totalExp;
+
+    // Calculate progress to next total level (every 100 exp)
+    const expInCurrentLevel = totalExp % 100;
+    const progress = (expInCurrentLevel / 100) * 100;
+    document.getElementById('totalExpFill').style.width = `${progress}%`;
+  }
+
+  // Render skills grid
+  function renderSkillsGrid() {
+    const grid = document.getElementById('skillsGrid');
+    grid.innerHTML = '';
+
+    Object.keys(skillsData).forEach(skillName => {
+      if (skillName === 'userData') return; // Skip userData object
+      
+      const skill = skillsData[skillName];
+      if (!skill || !skill.items) return; // Skip invalid skills
+      
+      const card = document.createElement('div');
+      card.className = `skill-card ${skill.locked ? 'locked' : ''}`;
+
+      const expNeeded = getExpNeeded(skill.level || 0);
+      const currentLevelExp = getCurrentLevelExp(skill.totalExp || 0, skill.level || 0);
+      const expProgress = (skill.level > 0 || currentLevelExp > 0) ? (currentLevelExp / expNeeded) * 100 : 0;
+      const isMaxLevel = isSkillMaxLevel(skillName);
+
+      card.innerHTML = `
+        <div class="skill-header">
+          <h3 class="skill-name">${skillName}</h3>
+          <div class="skill-level">${isMaxLevel ? 'MAX LEVEL' : `Level ${skill.level || 0}`}</div>
+        </div>
+        <div class="skill-exp">
+          ${skill.locked ? '<div class="lock-icon">🔒</div>' :
+          isMaxLevel ? '<div style="color: #48bb78; font-weight: bold; text-align: center;">🏆 COMPLETED 🏆</div>' :
+          `<div>Experience: ${currentLevelExp} / ${expNeeded}</div>
+           <div class="skill-exp-bar">
+             <div class="skill-exp-fill" style="width: ${expProgress}%"></div>
+           </div>`}
+        </div>
+      `;
+
+      if (!skill.locked) {
+        card.onclick = () => showSkillDetail(skillName);
+      }
+
+      grid.appendChild(card);
+    });
+  }
+
+  // Show skill detail page
+  function showSkillDetail(skillName) {
+    const skill = skillsData[skillName];
+
+    document.getElementById('mainPage').style.display = 'none';
+    document.getElementById('skillDetail').style.display = 'block';
+
+    const isMaxLevel = isSkillMaxLevel(skillName);
+    const expNeeded = getExpNeeded(skill.level);
+    const currentLevelExp = getCurrentLevelExp(skill.totalExp, skill.level);
+
+    document.getElementById('detailSkillName').textContent = skillName;
+    document.getElementById('detailSkillLevel').textContent = isMaxLevel ? 'MAX LEVEL' : `Level ${skill.level}`;
+    document.getElementById('detailSkillExp').textContent = currentLevelExp;
+    document.getElementById('detailSkillExpNeeded').textContent = expNeeded;
+
+    const expProgress = (skill.level > 0 || currentLevelExp > 0) ? (currentLevelExp / expNeeded) * 100 : 0;
+    document.getElementById('detailSkillExpFill').style.width = `${expProgress}%`;
+
+    // Render skill items
+    const itemsContainer = document.getElementById('skillItems');
+    itemsContainer.innerHTML = '';
+
+    if (isMaxLevel) {
+      const maxLevelDiv = document.createElement('div');
+      maxLevelDiv.style.textAlign = 'center';
+      maxLevelDiv.style.padding = '30px';
+      maxLevelDiv.style.background = 'linear-gradient(135deg, #48bb78, #38a169)';
+      maxLevelDiv.style.color = 'white';
+      maxLevelDiv.style.borderRadius = '15px';
+      maxLevelDiv.style.fontSize = '1.2rem';
+      maxLevelDiv.innerHTML = '🏆 CONGRATULATIONS! 🏆<br>You have completed all skills in this category!';
+      itemsContainer.appendChild(maxLevelDiv);
+    }
+
+    skill.items.forEach((item, index) => {
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'skill-item';
+      itemDiv.innerHTML = `
+        <div class="skill-item-header">
+          <span class="skill-item-name">${item.name}</span>
+          <span class="skill-item-exp">+${item.exp} EXP</span>
+        </div>
+        <label>
+          <input type="checkbox" class="skill-checkbox" 
+            ${item.completed ? 'checked' : ''} 
+            onchange="toggleSkillItem('${skillName}', ${index})">
+          ${item.completed ? 'Completed (click to unselect)' : 'Mark as completed'}
+        </label>
+      `;
+      itemsContainer.appendChild(itemDiv);
+    });
+  }
+
+  // Show main page
+  function showMainPage() {
+    document.getElementById('mainPage').style.display = 'block';
+    document.getElementById('skillDetail').style.display = 'none';
+  }
+
+  // Initialize the application
+  function init() {
+    checkLeadSkillsUnlock();
+    updateDisplay();
+    showMainPage();
+  }
+
+  // Start the application
+  init();
+</script>
