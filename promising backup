@@ -28,12 +28,48 @@
             text-align: center;
             margin-bottom: 30px;
             color: white;
+            position: relative;
         }
 
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .test-btn {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #f6ad55, #ed8936);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .test-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .test-btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+            50% { box-shadow: 0 4px 25px rgba(246, 173, 85, 0.4); }
+            100% { box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         }
 
         .total-level {
@@ -232,6 +268,8 @@
             text-align: center;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             animation: popupScale 0.3s ease;
+            max-width: 500px;
+            width: 90%;
         }
 
         @keyframes popupScale {
@@ -259,6 +297,59 @@
             font-size: 2rem;
             color: #a0aec0;
         }
+
+        .test-content {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .test-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-item label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .test-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .test-submit {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .test-submit:hover {
+            transform: scale(1.05);
+        }
+
+        .test-submit:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        .test-progress {
+            margin: 15px 0;
+            color: #666;
+            font-weight: bold;
+        }
     </style>
 </head>
 <header>
@@ -271,6 +362,9 @@
 <body>
     <div class="container">
         <div class="header">
+            <button class="test-btn" id="testBtn" onclick="showLevelTest()" disabled>
+                🎯 Take Level Test
+            </button>
             <h1>🏨 Hotel Skills Training</h1>
             <p>Master your hospitality skills and advance your career</p>
         </div>
@@ -314,6 +408,22 @@
             <h3>🎉 Congratulations!</h3>
             <p id="levelUpMessage"></p>
             <button class="popup-close" onclick="closeLevelUpPopup()">Continue</button>
+        </div>
+    </div>
+
+    <div class="popup" id="testPopup">
+        <div class="popup-content">
+            <h3>🎯 Level Test</h3>
+            <p>Complete all the tasks below to advance to the next level!</p>
+            <div class="test-progress" id="testProgress">Progress: 0/0</div>
+            <div class="test-content" id="testContent">
+                <!-- Test items will be generated here -->
+            </div>
+<input type="password" id="managerApprovalPassword" placeholder="Manager password to approve" class="w-full p-2 mt-3 border border-gray-300 rounded-md" />
+<button class="test-submit" id="testSubmit" onclick="submitTest()" disabled>
+  Submit Test
+</button>
+            <button class="popup-close" onclick="closeTestPopup()">Cancel</button>
         </div>
     </div>
 
@@ -394,6 +504,18 @@
 
   let skillsData = allHotelData[username];
 
+  // Add user-specific data for test tracking
+  if (!allHotelData[username].userData) {
+    allHotelData[username].userData = {
+      canTakeTest: false,
+      testLevel: 0,
+      actualLevel: 0
+    };
+    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+  }
+
+  let userData = allHotelData[username].userData;
+
   // Calculate experience needed for next level
   function getExpNeeded(level) {
     return 50 + (level * 25);
@@ -432,23 +554,37 @@
   // Calculate total level (based on total experience / 100)
   function calculateTotalLevel() {
     const totalExp = calculateTotalExp();
-    return Math.floor(totalExp / 100);
+    const calculatedLevel = Math.floor(totalExp / 100);
+    
+    // Check if user can take test (has enough exp for next level but hasn't taken test)
+    if (calculatedLevel > userData.actualLevel && !userData.canTakeTest) {
+      userData.canTakeTest = true;
+      userData.testLevel = calculatedLevel;
+    }
+    
+    return userData.actualLevel;
   }
 
   // Calculate total experience across all skills
   function calculateTotalExp() {
-    return Object.values(skillsData).reduce((total, skill) => total + skill.totalExp, 0);
+    let total = 0;
+    Object.keys(skillsData).forEach(skillName => {
+      if (skillsData[skillName] && typeof skillsData[skillName].totalExp === 'number') {
+        total += skillsData[skillName].totalExp;
+      }
+    });
+    return total;
   }
 
   // Check if a skill category is at max level (all items completed)
   function isSkillMaxLevel(skillName) {
     const skill = skillsData[skillName];
-    return skill.items.every(item => item.completed);
+    return skill && skill.items && skill.items.every(item => item.completed);
   }
 
   // Check if Lead Skills should be unlocked or locked
   function checkLeadSkillsUnlock() {
-    const totalLevel = calculateTotalLevel();
+    const totalLevel = userData.actualLevel;
     if (totalLevel >= 3 && skillsData["Lead Skills"].locked) {
       skillsData["Lead Skills"].locked = false;
       renderSkillsGrid();
@@ -460,6 +596,144 @@
       skillsData["Lead Skills"].items.forEach(item => item.completed = false);
       renderSkillsGrid();
     }
+  }
+
+  // Update test button state
+  function updateTestButton() {
+    const testBtn = document.getElementById('testBtn');
+    if (userData.canTakeTest) {
+      testBtn.disabled = false;
+      testBtn.textContent = `🎯 Take Level ${userData.testLevel} Test`;
+    } else {
+      testBtn.disabled = true;
+      testBtn.textContent = '🎯 Take Level Test';
+    }
+  }
+
+  // Show level test popup
+  function showLevelTest() {
+    if (!userData.canTakeTest) return;
+    
+    const popup = document.getElementById('testPopup');
+    const testContent = document.getElementById('testContent');
+    
+    // Generate test items (random selection from all incomplete skills)
+    const testItems = generateTestItems();
+    
+    testContent.innerHTML = '';
+    testItems.forEach((item, index) => {
+      const testItem = document.createElement('div');
+      testItem.className = 'test-item';
+      testItem.innerHTML = `
+        <label>
+          <input type="checkbox" onchange="updateTestProgress()" data-test-item="${index}">
+          ${item.name} (${item.category})
+        </label>
+      `;
+      testContent.appendChild(testItem);
+    });
+    
+    updateTestProgress();
+    popup.style.display = 'flex';
+  }
+
+  // Generate test items based on current skills
+function generateTestItems() {
+  const testItems = [];
+
+  Object.keys(skillsData).forEach(category => {
+    if (category === 'Lead Skills' || skillsData[category].locked) return;
+
+    const items = skillsData[category].items || [];
+    items.forEach(item => {
+      if (item.completed) {
+        testItems.push({
+          name: item.name,
+          category: category,
+          exp: item.exp
+        });
+      }
+    });
+  });
+
+  return testItems;
+}
+
+
+  // Update test progress
+  function updateTestProgress() {
+    const checkboxes = document.querySelectorAll('#testContent input[type="checkbox"]');
+    const checked = document.querySelectorAll('#testContent input[type="checkbox"]:checked');
+    const progress = document.getElementById('testProgress');
+    const submitBtn = document.getElementById('testSubmit');
+    
+    progress.textContent = `Progress: ${checked.length}/${checkboxes.length}`;
+    
+    if (checked.length === checkboxes.length && checkboxes.length > 0) {
+      submitBtn.disabled = false;
+    } else {
+      submitBtn.disabled = true;
+    }
+  }
+
+  // Submit test
+function submitTest() {
+  const checkboxes = document.querySelectorAll('#testContent input[type="checkbox"]');
+  const checked = document.querySelectorAll('#testContent input[type="checkbox"]:checked');
+  const passwordInput = document.getElementById('managerApprovalPassword');
+  const enteredPassword = passwordInput.value.trim();
+
+  if (checked.length !== checkboxes.length || checkboxes.length === 0) {
+    alert("Please complete all test items.");
+    return;
+  }
+
+  // Get manager profiles from localStorage
+  const profiles = JSON.parse(localStorage.getItem('profiles') || '[]');
+  const managerProfiles = profiles.filter(p => p.role === 'manager');
+
+  // Check if entered password matches any manager's password
+  const managerApproved = managerProfiles.some(manager => manager.password === enteredPassword);
+
+  if (!managerApproved) {
+    alert("Invalid manager password. Test cannot be submitted.");
+    return;
+  }
+
+  // Test approved, update level
+// Lock all tested items (completed items from unlocked categories)
+Object.keys(skillsData).forEach(category => {
+  if (category === 'Lead Skills' || skillsData[category].locked) return;
+
+  const items = skillsData[category].items || [];
+  items.forEach(item => {
+    if (item.completed) {
+      item.locked = true; // mark as locked
+    }
+  });
+});
+
+// Then update user level
+// Update user data
+userData.actualLevel = userData.testLevel;
+userData.canTakeTest = false;
+userData.testLevel = 0;
+
+// Ensure userData is preserved when saving
+skillsData.userData = userData;
+allHotelData[username] = skillsData;
+
+localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+
+  closeTestPopup();
+  showLevelUpPopup("Total Level", userData.actualLevel);
+  checkLeadSkillsUnlock();
+  updateDisplay();
+}
+
+  // Close test popup
+  function closeTestPopup() {
+    document.getElementById('testPopup').style.display = 'none';
   }
 
   // Show level up popup
@@ -488,12 +762,16 @@
   }
 
   // Handle skill item completion/deselection
-  function toggleSkillItem(skillName, itemIndex) {
-    const skill = skillsData[skillName];
-    const item = skill.items[itemIndex];
+function toggleSkillItem(skillName, itemIndex) {
+  const skill = skillsData[skillName];
+  const item = skill.items[itemIndex];
 
-    const previousTotalLevel = calculateTotalLevel();
-    const previousLevel = skill.level;
+  if (item.locked) {
+    alert("This skill has been locked after passing the test and cannot be changed.");
+    return;
+  }
+
+  const previousLevel = skill.level;
 
     if (item.completed) {
       // Deselecting - remove experience
@@ -504,6 +782,7 @@
       item.completed = true;
       skill.totalExp += item.exp;
     }
+    
     allHotelData[username] = skillsData;
     localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
 
@@ -518,14 +797,6 @@
       skill.level = newLevel;
     }
 
-    // Check for total level up (every 100 total exp)
-    const newTotalLevel = calculateTotalLevel();
-    if (newTotalLevel > previousTotalLevel) {
-      setTimeout(() => {
-        showLevelUpPopup("Total Level", newTotalLevel);
-      }, 1000);
-    }
-
     // Check if skill category reached max level
     if (isSkillMaxLevel(skillName) && item.completed) {
       setTimeout(() => {
@@ -533,13 +804,23 @@
       }, 1500);
     }
 
-    checkLeadSkillsUnlock();
+    // Check if user can take test for next total level
+    const totalExp = calculateTotalExp();
+    const calculatedLevel = Math.floor(totalExp / 100);
+    if (calculatedLevel > userData.actualLevel && !userData.canTakeTest) {
+      userData.canTakeTest = true;
+      userData.testLevel = calculatedLevel;
+      allHotelData[username].userData = userData;
+      localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+    }
+
     updateDisplay();
   }
 
   // Update all displays
   function updateDisplay() {
     updateTotalLevel();
+    updateTestButton();
     renderSkillsGrid();
     if (document.getElementById('skillDetail').style.display !== 'none') {
       const currentSkill = document.getElementById('detailSkillName').textContent;
@@ -567,19 +848,23 @@
     grid.innerHTML = '';
 
     Object.keys(skillsData).forEach(skillName => {
+      if (skillName === 'userData') return; // Skip userData object
+      
       const skill = skillsData[skillName];
+      if (!skill || !skill.items) return; // Skip invalid skills
+      
       const card = document.createElement('div');
       card.className = `skill-card ${skill.locked ? 'locked' : ''}`;
 
-      const expNeeded = getExpNeeded(skill.level);
-      const currentLevelExp = getCurrentLevelExp(skill.totalExp, skill.level);
+      const expNeeded = getExpNeeded(skill.level || 0);
+      const currentLevelExp = getCurrentLevelExp(skill.totalExp || 0, skill.level || 0);
       const expProgress = (skill.level > 0 || currentLevelExp > 0) ? (currentLevelExp / expNeeded) * 100 : 0;
       const isMaxLevel = isSkillMaxLevel(skillName);
 
       card.innerHTML = `
         <div class="skill-header">
           <h3 class="skill-name">${skillName}</h3>
-          <div class="skill-level">${isMaxLevel ? 'MAX LEVEL' : `Level ${skill.level}`}</div>
+          <div class="skill-level">${isMaxLevel ? 'MAX LEVEL' : `Level ${skill.level || 0}`}</div>
         </div>
         <div class="skill-exp">
           ${skill.locked ? '<div class="lock-icon">🔒</div>' :
@@ -643,9 +928,10 @@
           <span class="skill-item-exp">+${item.exp} EXP</span>
         </div>
         <label>
-          <input type="checkbox" class="skill-checkbox" 
-            ${item.completed ? 'checked' : ''} 
-            onchange="toggleSkillItem('${skillName}', ${index})">
+<input type="checkbox" class="skill-checkbox" 
+  ${item.completed ? 'checked' : ''} 
+  ${item.locked ? 'disabled' : ''}
+  onchange="toggleSkillItem('${skillName}', ${index})">
           ${item.completed ? 'Completed (click to unselect)' : 'Mark as completed'}
         </label>
       `;
@@ -669,7 +955,3 @@
   // Start the application
   init();
 </script>
-
-    </script>
-</body>
-</html>
