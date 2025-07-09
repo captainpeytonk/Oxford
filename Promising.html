@@ -344,7 +344,8 @@ function generateTestItems() {
 
     const items = skillsData[category].items || [];
     items.forEach(item => {
-      if (item.completed) {
+      // Only include completed items that are NOT already locked
+      if (item.completed && !item.locked) {
         testItems.push({
           name: item.name,
           category: category,
