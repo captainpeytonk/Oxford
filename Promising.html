@@ -494,6 +494,7 @@ body {
 
   // Step 2: Get current user and user-specific skills data
   const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+  const isManager = loggedInUser?.role === 'manager';
   const username = loggedInUser?.name || 'guest';
   let allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
 
