@@ -308,7 +308,7 @@ const getRoleColor = (role) => {
         card.innerHTML = `
           <div class="flex justify-between mb-4">
             <div>
-              <h3 class="font-semibold text-gray-900">${profile.name}</h3>
+              <h3 class="font-semibold text-gray-900">${profile.name} <span class="text-sm text-gray-500">(Level ${getUserLevel(profile.name)})</span></h3>
               <span class="text-xs px-2 py-1 rounded-full ${getRoleColor(profile.role)}">${profile.role}</span>
             </div>
             <div class="flex gap-2">
@@ -324,6 +324,19 @@ const getRoleColor = (role) => {
           </div>
         `;
 
+function getUserLevel(name) {
+  try {
+    const hotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
+    if (hotelData[name] && hotelData[name].userData) {
+      return hotelData[name].userData.actualLevel || 0;
+    }
+  } catch (e) {
+    console.error("Error reading user level for", name, e);
+  }
+  return 0;
+}
+
+        
         const [editBtn, deleteBtn] = card.querySelectorAll('.icon-btn');
         if (editBtn) editBtn.onclick = () => renderCreateForm(profile);
         if (deleteBtn) deleteBtn.onclick = () => {
