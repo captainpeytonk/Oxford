@@ -511,7 +511,8 @@ body {
 
   if (!allHotelData[username]) {
     allHotelData[username] = structuredClone(defaultSkillsData);
-    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+    syncSkillsAcrossUsers(skillsData);
+  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
   }
 
   let skillsData = allHotelData[username];
@@ -523,7 +524,8 @@ body {
       testLevel: 0,
       actualLevel: 0
     };
-    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+    syncSkillsAcrossUsers(skillsData);
+  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
   }
 
   let userData = allHotelData[username].userData;
@@ -735,7 +737,8 @@ userData.testLevel = 0;
 skillsData.userData = userData;
 allHotelData[username] = skillsData;
 
-localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+syncSkillsAcrossUsers(skillsData);
+  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
 
   closeTestPopup();
   showLevelUpPopup("Total Level", userData.actualLevel);
@@ -796,7 +799,8 @@ function toggleSkillItem(skillName, itemIndex) {
     }
     
     allHotelData[username] = skillsData;
-    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+    syncSkillsAcrossUsers(skillsData);
+  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
 
     // Recalculate skill level based on total experience
     const newLevel = calculateLevelFromExp(skill.totalExp);
@@ -823,7 +827,8 @@ function toggleSkillItem(skillName, itemIndex) {
       userData.canTakeTest = true;
       userData.testLevel = calculatedLevel;
       allHotelData[username].userData = userData;
-      localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+      syncSkillsAcrossUsers(skillsData);
+  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
     }
 
     updateDisplay();
@@ -894,6 +899,11 @@ function toggleSkillItem(skillName, itemIndex) {
   editBtn.style = 'margin-top: 10px; background: #edf2f7; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer;';
   editBtn.onclick = () => showEditSkillModal(skillName);
   card.appendChild(editBtn);
+  const delBtn = document.createElement('button');
+  delBtn.textContent = '🗑️ Delete';
+  delBtn.style = 'margin-top: 10px; margin-left: 10px; background: #feb2b2; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer;';
+  delBtn.onclick = (e) => { e.stopPropagation(); deleteSkill(skillName); };
+  card.appendChild(delBtn);
 }
 
 
@@ -914,6 +924,49 @@ grid.insertAdjacentElement('afterend', addBtn);
 }
 
   }
+
+
+function syncSkillsAcrossUsers(updatedSkillsData, deletedSkill = null) {
+  const hotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
+
+  Object.keys(hotelData).forEach(user => {
+    if (!hotelData[user]) return;
+    if (!hotelData[user].userData) hotelData[user].userData = {
+      canTakeTest: false,
+      testLevel: 0,
+      actualLevel: 0
+    };
+    if (deletedSkill) {
+      const deleted = hotelData[user][deletedSkill];
+      if (deleted) {
+        const lostExp = deleted.totalExp || 0;
+        delete hotelData[user][deletedSkill];
+        const totalExp = Object.keys(hotelData[user])
+          .filter(k => k !== 'userData')
+          .reduce((sum, sk) => sum + (hotelData[user][sk]?.totalExp || 0), 0);
+        hotelData[user].userData.actualLevel = Math.floor(totalExp / 100);
+      }
+    } else {
+      Object.keys(updatedSkillsData).forEach(skillName => {
+        hotelData[user][skillName] = structuredClone(updatedSkillsData[skillName]);
+      });
+    }
+  });
+
+  localStorage.setItem('hotelSkillsData', JSON.stringify(hotelData));
+}
+
+function deleteSkill(skillName) {
+  if (!confirm(`Are you sure you want to delete the skill "${skillName}"? This will remove it for all users.`)) return;
+
+  delete skillsData[skillName];
+  syncSkillsAcrossUsers(null, skillName);
+
+  allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
+  skillsData = allHotelData[username];
+  renderSkillsGrid();
+}
+
 
 // Show skill detail page
   function showSkillDetail(skillName) {
@@ -1001,6 +1054,7 @@ function saveSkillEdit() {
   }
 
   allHotelData[username] = skillsData;
+  syncSkillsAcrossUsers(skillsData);
   localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
   closeEditSkillPopup();
   renderSkillsGrid();
