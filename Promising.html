@@ -507,64 +507,15 @@ body {
   const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
   const isManager = loggedInUser?.role === 'manager';
   const username = loggedInUser?.name || 'guest';
-  
-let allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
+  let allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
 
-// Global shared skills (does NOT include userData)
-let globalSkillsData = JSON.parse(localStorage.getItem('globalSkillsData') || 'null');
-
-// Initialize global skills if not present
-if (!globalSkillsData) {
-  globalSkillsData = JSON.parse(JSON.stringify(defaultSkillsData));
-  localStorage.setItem('globalSkillsData', JSON.stringify(globalSkillsData));
-}
-
-// Ensure user exists
-if (!allHotelData[username]) {
-  allHotelData[username] = {
-    ...JSON.parse(JSON.stringify(globalSkillsData)),
-    userData: {
-      canTakeTest: false,
-      testLevel: 0,
-      actualLevel: 0
-    }
-  };
-  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
-} else {
-  const currentData = allHotelData[username];
-
-  // Add new skills from global to user
-  Object.keys(globalSkillsData).forEach(skill => {
-    if (!currentData[skill]) {
-      currentData[skill] = JSON.parse(JSON.stringify(globalSkillsData[skill]));
-    }
-  });
-
-  // Remove outdated skills from user
-  Object.keys(currentData).forEach(skill => {
-    if (skill !== 'userData' && !globalSkillsData[skill]) {
-      delete currentData[skill];
-    }
-  });
-
-  // Ensure userData exists
-  if (!currentData.userData) {
-    currentData.userData = {
-      canTakeTest: false,
-      testLevel: 0,
-      actualLevel: 0
-    };
+  if (!allHotelData[username]) {
+    allHotelData[username] = JSON.parse(JSON.stringify(defaultSkillsData));
+    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
   }
 
-  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
-}
-
-skillsData = allHotelData[username];
-userData = skillsData.userData;
-
-
-userData = skillsData.userData;
-
+  let skillsData = allHotelData[username];
+syncSkillsAcrossUsers(skillsData);
 
   // Add user-specific data for test tracking
   if (!allHotelData[username].userData) {
@@ -1003,7 +954,6 @@ function syncSkillsAcrossUsers(updatedSkillsData, deletedSkill = null) {
   });
 
   localStorage.setItem('hotelSkillsData', JSON.stringify(hotelData));
-  localStorage.setItem('globalSkillsData', JSON.stringify(updatedSkillsData || globalSkillsData));
 }
 
 function deleteSkill(skillName) {
