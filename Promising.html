@@ -902,7 +902,6 @@ function toggleSkillItem(skillName, itemIndex) {
       }
 
       grid.appendChild(card);
-    }
     });
 
     // Add "Add New Skill" button for managers
@@ -912,7 +911,8 @@ if (isManager) {
   addBtn.style = 'background: #48bb78; color: white; padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; margin-top: 20px;';
   addBtn.onclick = () => showEditSkillModal('');
 grid.insertAdjacentElement('afterend', addBtn);
-}
+    }
+  }
 
   // Show skill detail page
   function showSkillDetail(skillName) {
