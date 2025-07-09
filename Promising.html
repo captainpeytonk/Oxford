@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -508,30 +507,62 @@ body {
   const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
   const isManager = loggedInUser?.role === 'manager';
   const username = loggedInUser?.name || 'guest';
-  let allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
+  
+let allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
 
-// Global shared skill template
-let globalSkillsData = JSON.parse(localStorage.getItem('globalSkillsData') || null);
+// Global shared skills (does NOT include userData)
+let globalSkillsData = JSON.parse(localStorage.getItem('globalSkillsData') || 'null');
 
-// If no global data exists, initialize it from default
+// Initialize global skills if not present
 if (!globalSkillsData) {
-  globalSkillsData = structuredClone(defaultSkillsData);
+  globalSkillsData = JSON.parse(JSON.stringify(defaultSkillsData));
   localStorage.setItem('globalSkillsData', JSON.stringify(globalSkillsData));
 }
 
-// Assign or sync user skills from global
+// Ensure user exists
 if (!allHotelData[username]) {
-  allHotelData[username] = structuredClone(globalSkillsData);
-  allHotelData[username].userData = {
-    canTakeTest: false,
-    testLevel: 0,
-    actualLevel: 0
+  allHotelData[username] = {
+    ...JSON.parse(JSON.stringify(globalSkillsData)),
+    userData: {
+      canTakeTest: false,
+      testLevel: 0,
+      actualLevel: 0
+    }
   };
+  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+} else {
+  const currentData = allHotelData[username];
+
+  // Add new skills from global to user
+  Object.keys(globalSkillsData).forEach(skill => {
+    if (!currentData[skill]) {
+      currentData[skill] = JSON.parse(JSON.stringify(globalSkillsData[skill]));
+    }
+  });
+
+  // Remove outdated skills from user
+  Object.keys(currentData).forEach(skill => {
+    if (skill !== 'userData' && !globalSkillsData[skill]) {
+      delete currentData[skill];
+    }
+  });
+
+  // Ensure userData exists
+  if (!currentData.userData) {
+    currentData.userData = {
+      canTakeTest: false,
+      testLevel: 0,
+      actualLevel: 0
+    };
+  }
+
   localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
 }
 
-// Always use globalSkillsData as reference for syncing skills
 skillsData = allHotelData[username];
+userData = skillsData.userData;
+
+
 userData = skillsData.userData;
 
 
@@ -966,7 +997,7 @@ function syncSkillsAcrossUsers(updatedSkillsData, deletedSkill = null) {
       }
     } else {
       Object.keys(updatedSkillsData).forEach(skillName => {
-        hotelData[user][skillName] = structuredClone(updatedSkillsData[skillName]);
+        hotelData[user][skillName] = JSON.parse(JSON.stringify(updatedSkillsData[skillName]));
       });
     }
   });
