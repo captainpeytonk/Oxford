@@ -342,12 +342,11 @@ function generateTestItems() {
   Object.keys(skillsData).forEach(category => {
     const skill = skillsData[category];
 
-    // Skip entirely locked categories
-    if (skill.locked) return;
+    // Skip locked skill categories (including Lead Skills if still locked)
+    if (!skill || skill.locked) return;
 
-    const items = skill.items || [];
-    items.forEach(item => {
-      // Only include completed items that are not yet locked
+    skill.items.forEach(item => {
+      // Include only items that are completed and not already locked (i.e., not tested yet)
       if (item.completed && !item.locked) {
         testItems.push({
           name: item.name,
@@ -384,10 +383,15 @@ function submitTest() {
   const passwordInput = document.getElementById('managerApprovalPassword');
   const enteredPassword = passwordInput.value.trim();
 
-  if (checked.length !== checkboxes.length || checkboxes.length === 0) {
-    alert("Please complete all test items.");
-    return;
-  }
+if (checkboxes.length === 0) {
+  alert("No test items available. Please complete new skill items before taking a test.");
+  return;
+}
+
+if (checked.length !== checkboxes.length) {
+  alert("Please complete all test items.");
+  return;
+}
 
   // Get manager profiles from localStorage
   const profiles = JSON.parse(localStorage.getItem('profiles') || '[]');
