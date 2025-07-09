@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -509,13 +510,30 @@ body {
   const username = loggedInUser?.name || 'guest';
   let allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
 
-  if (!allHotelData[username]) {
-    allHotelData[username] = structuredClone(defaultSkillsData);
-    syncSkillsAcrossUsers(skillsData);
-  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
-  }
+// Global shared skill template
+let globalSkillsData = JSON.parse(localStorage.getItem('globalSkillsData') || null);
 
-  let skillsData = allHotelData[username];
+// If no global data exists, initialize it from default
+if (!globalSkillsData) {
+  globalSkillsData = structuredClone(defaultSkillsData);
+  localStorage.setItem('globalSkillsData', JSON.stringify(globalSkillsData));
+}
+
+// Assign or sync user skills from global
+if (!allHotelData[username]) {
+  allHotelData[username] = structuredClone(globalSkillsData);
+  allHotelData[username].userData = {
+    canTakeTest: false,
+    testLevel: 0,
+    actualLevel: 0
+  };
+  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+}
+
+// Always use globalSkillsData as reference for syncing skills
+skillsData = allHotelData[username];
+userData = skillsData.userData;
+
 
   // Add user-specific data for test tracking
   if (!allHotelData[username].userData) {
@@ -954,6 +972,7 @@ function syncSkillsAcrossUsers(updatedSkillsData, deletedSkill = null) {
   });
 
   localStorage.setItem('hotelSkillsData', JSON.stringify(hotelData));
+  localStorage.setItem('globalSkillsData', JSON.stringify(updatedSkillsData || globalSkillsData));
 }
 
 function deleteSkill(skillName) {
