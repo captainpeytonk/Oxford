@@ -185,7 +185,7 @@
         { name: "Take Payments (Nonrefundables/Voucher)", exp: 10, completed: false },
         { name: "Know when/how to offer refunds", exp: 10, completed: false },
         { name: "Handle Complaints", exp: 10, completed: false },
-        { name: "Reply to Reviews", exp: 10, completed: false }
+        { name: "Reply to Reviews", exp: 9, completed: false }
       ]
     }
   };
@@ -297,16 +297,16 @@
   }
 
   // Update test button state
-function updateTestButton() {
-  const testBtn = document.getElementById('testBtn');
-  if (userData.canTakeTest) {
-    testBtn.disabled = false;
-    testBtn.textContent = `🎯 Take Level ${userData.testLevel} Test`;
-  } else {
-    testBtn.disabled = true;
-    testBtn.textContent = '🎯 Take Level Test';
+  function updateTestButton() {
+    const testBtn = document.getElementById('testBtn');
+    if (userData.canTakeTest) {
+      testBtn.disabled = false;
+      testBtn.textContent = `🎯 Take Level ${userData.testLevel} Test`;
+    } else {
+      testBtn.disabled = true;
+      testBtn.textContent = '🎯 Take Level Test';
+    }
   }
-}
 
   // Show level test popup
   function showLevelTest() {
@@ -340,13 +340,11 @@ function generateTestItems() {
   const testItems = [];
 
   Object.keys(skillsData).forEach(category => {
-    const skill = skillsData[category];
+    if (category === 'Lead Skills' || skillsData[category].locked) return;
 
-    // Skip locked skill categories (including Lead Skills if still locked)
-    if (!skill || skill.locked) return;
-
-    skill.items.forEach(item => {
-      // Include only items that are completed and not already locked (i.e., not tested yet)
+    const items = skillsData[category].items || [];
+    items.forEach(item => {
+      // Only include completed items that are NOT already locked
       if (item.completed && !item.locked) {
         testItems.push({
           name: item.name,
@@ -359,6 +357,7 @@ function generateTestItems() {
 
   return testItems;
 }
+
 
   // Update test progress
   function updateTestProgress() {
@@ -383,15 +382,10 @@ function submitTest() {
   const passwordInput = document.getElementById('managerApprovalPassword');
   const enteredPassword = passwordInput.value.trim();
 
-if (checkboxes.length === 0) {
-  alert("No test items available. Please complete new skill items before taking a test.");
-  return;
-}
-
-if (checked.length !== checkboxes.length) {
-  alert("Please complete all test items.");
-  return;
-}
+  if (checked.length !== checkboxes.length || checkboxes.length === 0) {
+    alert("Please complete all test items.");
+    return;
+  }
 
   // Get manager profiles from localStorage
   const profiles = JSON.parse(localStorage.getItem('profiles') || '[]');
@@ -408,12 +402,12 @@ if (checked.length !== checkboxes.length) {
   // Test approved, update level
 // Lock all tested items (completed items from unlocked categories)
 Object.keys(skillsData).forEach(category => {
-  const skill = skillsData[category];
-  if (skill.locked) return; // Skip fully locked categories
+  if (category === 'Lead Skills' || skillsData[category].locked) return;
 
-  skill.items.forEach(item => {
+  const items = skillsData[category].items || [];
+  items.forEach(item => {
     if (item.completed) {
-      item.locked = true; // Lock completed items that were just tested
+      item.locked = true; // mark as locked
     }
   });
 });
@@ -651,12 +645,11 @@ function toggleSkillItem(skillName, itemIndex) {
   }
 
   // Initialize the application
-function init() {
-  calculateTotalLevel(); // this sets canTakeTest
-  checkLeadSkillsUnlock();
-  updateDisplay();
-  showMainPage();
-}
+  function init() {
+    checkLeadSkillsUnlock();
+    updateDisplay();
+    showMainPage();
+  }
 
   // Start the application
   init();
