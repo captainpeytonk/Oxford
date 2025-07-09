@@ -340,11 +340,14 @@ function generateTestItems() {
   const testItems = [];
 
   Object.keys(skillsData).forEach(category => {
-    if (category === 'Lead Skills' || skillsData[category].locked) return;
+    const skill = skillsData[category];
 
-    const items = skillsData[category].items || [];
+    // Skip entirely locked categories
+    if (skill.locked) return;
+
+    const items = skill.items || [];
     items.forEach(item => {
-      // Only include completed items that are NOT already locked
+      // Only include completed items that are not yet locked
       if (item.completed && !item.locked) {
         testItems.push({
           name: item.name,
@@ -357,7 +360,6 @@ function generateTestItems() {
 
   return testItems;
 }
-
 
   // Update test progress
   function updateTestProgress() {
@@ -402,12 +404,12 @@ function submitTest() {
   // Test approved, update level
 // Lock all tested items (completed items from unlocked categories)
 Object.keys(skillsData).forEach(category => {
-  if (category === 'Lead Skills' || skillsData[category].locked) return;
+  const skill = skillsData[category];
+  if (skill.locked) return; // Skip fully locked categories
 
-  const items = skillsData[category].items || [];
-  items.forEach(item => {
+  skill.items.forEach(item => {
     if (item.completed) {
-      item.locked = true; // mark as locked
+      item.locked = true; // Lock completed items that were just tested
     }
   });
 });
