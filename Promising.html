@@ -360,6 +360,17 @@ body {
   </nav>
 </header>
 <body>
+
+  <div class="popup" id="editSkillPopup">
+  <div class="popup-content">
+    <h3>Edit Skill</h3>
+    <input type="text" id="editSkillName" placeholder="Skill Name" class="w-full p-2 border rounded mb-2" />
+    <textarea id="editSkillItems" placeholder="Enter skill items, one per line" class="w-full p-2 border rounded mb-2"></textarea>
+    <button onclick="saveSkillEdit()" style="background:#48bb78; color:white; padding:10px 20px; border:none; border-radius:20px;">Save</button>
+    <button class="popup-close" onclick="closeEditSkillPopup()">Cancel</button>
+  </div>
+</div>
+
     <div class="container">
         <div class="header">
             <button class="test-btn" id="testBtn" onclick="showLevelTest()" disabled>
@@ -876,6 +887,15 @@ function toggleSkillItem(skillName, itemIndex) {
            </div>`}
         </div>
       `;
+      
+      if (isManager) {
+  const editBtn = document.createElement('button');
+  editBtn.textContent = '✏️ Edit';
+  editBtn.style = 'margin-top: 10px; background: #edf2f7; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer;';
+  editBtn.onclick = () => showEditSkillModal(skillName);
+  card.appendChild(editBtn);
+}
+
 
       if (!skill.locked) {
         card.onclick = () => showSkillDetail(skillName);
@@ -883,7 +903,15 @@ function toggleSkillItem(skillName, itemIndex) {
 
       grid.appendChild(card);
     });
-  }
+
+    // Add "Add New Skill" button for managers
+if (isManager) {
+  const addBtn = document.createElement('button');
+  addBtn.textContent = '+ Add New Skill';
+  addBtn.style = 'background: #48bb78; color: white; padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; margin-top: 20px;';
+  addBtn.onclick = () => showEditSkillModal('');
+  grid.parentElement.appendChild(addBtn);
+}
 
   // Show skill detail page
   function showSkillDetail(skillName) {
@@ -940,6 +968,47 @@ function toggleSkillItem(skillName, itemIndex) {
     });
   }
 
+let currentSkillEditing = null;
+
+function showEditSkillModal(skillName) {
+  currentSkillEditing = skillName;
+  const skill = skillsData[skillName] || { items: [] };
+  document.getElementById('editSkillName').value = skillName || '';
+  document.getElementById('editSkillItems').value = (skill.items || []).map(i => i.name).join('\n');
+  document.getElementById('editSkillPopup').style.display = 'flex';
+}
+
+function saveSkillEdit() {
+  const newName = document.getElementById('editSkillName').value.trim();
+  const itemsText = document.getElementById('editSkillItems').value.trim();
+
+  if (!newName || !itemsText) return alert('Fill all fields.');
+
+  const newItems = itemsText.split('\n').map(name => ({
+    name,
+    exp: 10,
+    completed: false
+  }));
+
+  if (newName !== currentSkillEditing && currentSkillEditing) {
+    skillsData[newName] = { ...skillsData[currentSkillEditing], items: newItems };
+    delete skillsData[currentSkillEditing];
+  } else {
+    skillsData[newName] = skillsData[newName] || { level: 0, totalExp: 0, items: [] };
+    skillsData[newName].items = newItems;
+  }
+
+  allHotelData[username] = skillsData;
+  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+  closeEditSkillPopup();
+  renderSkillsGrid();
+}
+
+function closeEditSkillPopup() {
+  document.getElementById('editSkillPopup').style.display = 'none';
+}
+
+  
   // Show main page
   function showMainPage() {
     document.getElementById('mainPage').style.display = 'block';
