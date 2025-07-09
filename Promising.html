@@ -297,16 +297,16 @@
   }
 
   // Update test button state
-  function updateTestButton() {
-    const testBtn = document.getElementById('testBtn');
-    if (userData.canTakeTest) {
-      testBtn.disabled = false;
-      testBtn.textContent = `🎯 Take Level ${userData.testLevel} Test`;
-    } else {
-      testBtn.disabled = true;
-      testBtn.textContent = '🎯 Take Level Test';
-    }
+function updateTestButton() {
+  const testBtn = document.getElementById('testBtn');
+  if (userData.canTakeTest) {
+    testBtn.disabled = false;
+    testBtn.textContent = `🎯 Take Level ${userData.testLevel} Test`;
+  } else {
+    testBtn.disabled = true;
+    testBtn.textContent = '🎯 Take Level Test';
   }
+}
 
   // Show level test popup
   function showLevelTest() {
@@ -651,11 +651,12 @@ function toggleSkillItem(skillName, itemIndex) {
   }
 
   // Initialize the application
-  function init() {
-    checkLeadSkillsUnlock();
-    updateDisplay();
-    showMainPage();
-  }
+function init() {
+  calculateTotalLevel(); // this sets canTakeTest
+  checkLeadSkillsUnlock();
+  updateDisplay();
+  showMainPage();
+}
 
   // Start the application
   init();
