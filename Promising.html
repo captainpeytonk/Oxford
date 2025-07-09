@@ -910,7 +910,7 @@ if (isManager) {
   addBtn.textContent = '+ Add New Skill';
   addBtn.style = 'background: #48bb78; color: white; padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; margin-top: 20px;';
   addBtn.onclick = () => showEditSkillModal('');
-  grid.parentElement.appendChild(addBtn);
+grid.insertAdjacentElement('afterend', addBtn);
 }
 
   // Show skill detail page
