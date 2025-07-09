@@ -139,14 +139,34 @@
         { name: "Rubbish Bins", exp: 10, completed: false }
        ]
     },
-    "Fire Training": {
-      level: 0,
-      totalExp: 0,
-      items: [
-        { name: "Fire safety procedures", exp: 30, completed: false },
-        { name: "Emergency evacuation", exp: 25, completed: false }
-      ]
+"Fire Training": {
+  level: 0,
+  totalExp: 0,
+  items: [
+    {
+      name: "On Shift",
+      exp: 15,
+      completed: false,
+      note: "Check Rooms for Guests. Keep fire exits clear."
     },
+    {
+      name: "Off Shift",
+      exp: 15,
+      completed: false,
+      note: "Go outside and gather at the designated safety point."
+    },
+    {
+      name: "Fire safety procedures",
+      exp: 30,
+      completed: false
+    },
+    {
+      name: "Emergency evacuation",
+      exp: 25,
+      completed: false
+    }
+  ]
+}
     "Lead Skills": {
       level: 0,
       totalExp: 0,
@@ -587,19 +607,20 @@ function toggleSkillItem(skillName, itemIndex) {
     skill.items.forEach((item, index) => {
       const itemDiv = document.createElement('div');
       itemDiv.className = 'skill-item';
-      itemDiv.innerHTML = `
-        <div class="skill-item-header">
-          <span class="skill-item-name">${item.name}</span>
-          <span class="skill-item-exp">+${item.exp} EXP</span>
-        </div>
-        <label>
-<input type="checkbox" class="skill-checkbox" 
-  ${item.completed ? 'checked' : ''} 
-  ${item.locked ? 'disabled' : ''}
-  onchange="toggleSkillItem('${skillName}', ${index})">
-          ${item.completed ? 'Completed (click to unselect)' : 'Mark as completed'}
-        </label>
-      `;
+itemDiv.innerHTML = `
+  <div class="skill-item-header">
+    <span class="skill-item-name">${item.name}</span>
+    <span class="skill-item-exp">+${item.exp} EXP</span>
+  </div>
+  ${item.note ? `<div class="skill-item-note" style="margin: 5px 0; font-style: italic; color: #666;">ℹ️ ${item.note}</div>` : ''}
+  <label>
+    <input type="checkbox" class="skill-checkbox" 
+      ${item.completed ? 'checked' : ''} 
+      ${item.locked ? 'disabled' : ''}
+      onchange="toggleSkillItem('${skillName}', ${index})">
+    ${item.completed ? 'Completed (click to unselect)' : 'Mark as completed'}
+  </label>
+`;
       itemsContainer.appendChild(itemDiv);
     });
   }
