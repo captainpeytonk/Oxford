@@ -14,17 +14,6 @@
   </nav>
 </header>
 <body>
-
-  <div class="popup" id="editSkillPopup">
-  <div class="popup-content">
-    <h3>Edit Skill</h3>
-    <input type="text" id="editSkillName" placeholder="Skill Name" class="w-full p-2 border rounded mb-2" />
-    <textarea id="editSkillItems" placeholder="Enter skill items, one per line" class="w-full p-2 border rounded mb-2"></textarea>
-    <button onclick="saveSkillEdit()" style="background:#48bb78; color:white; padding:10px 20px; border:none; border-radius:20px;">Save</button>
-    <button class="popup-close" onclick="closeEditSkillPopup()">Cancel</button>
-  </div>
-</div>
-
     <div class="container">
         <div class="header">
             <button class="test-btn" id="testBtn" onclick="showLevelTest()" disabled>
@@ -129,25 +118,14 @@
       level: 0,
       totalExp: 0,
       items: [
-        { name: "Showers", exp: 10, completed: false },
-        { name: "Toilets", exp: 10, completed: false },
-        { name: "Kitchen", exp: 10, completed: false },
-        { name: "Common Room/TV Room", exp: 10, completed: false },
-        { name: "Terrace/Reception", exp: 10, completed: false },
-        { name: "Walls", exp: 10, completed: false },
-        { name: "Skirting Boards", exp: 10, completed: false }
+        { name: "Dust furniture", exp: 8, completed: false }
       ]
     },
     "Beds": {
       level: 0,
       totalExp: 0,
       items: [
-        { name: "Strip Beds", exp: 10, completed: false },
-        { name: "Clean Beds", exp: 10, completed: false },
-        { name: "Make Beds", exp: 10, completed: false },
-        { name: "Deep Clean Room", exp: 10, completed: false },
-        { name: "Vacuum", exp: 10, completed: false },
-        { name: "Rubbish Bins", exp: 10, completed: false }
+        { name: "Arrange decorative pillows", exp: 15, completed: false }
       ]
     },
     "Fire Training": {
@@ -170,17 +148,15 @@
 
   // Step 2: Get current user and user-specific skills data
   const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-  const isManager = loggedInUser?.role === 'manager';
   const username = loggedInUser?.name || 'guest';
   let allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
 
   if (!allHotelData[username]) {
-    allHotelData[username] = JSON.parse(JSON.stringify(defaultSkillsData));
+    allHotelData[username] = structuredClone(defaultSkillsData);
     localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
   }
 
   let skillsData = allHotelData[username];
-syncSkillsAcrossUsers(skillsData);
 
   // Add user-specific data for test tracking
   if (!allHotelData[username].userData) {
@@ -189,8 +165,7 @@ syncSkillsAcrossUsers(skillsData);
       testLevel: 0,
       actualLevel: 0
     };
-    syncSkillsAcrossUsers(skillsData);
-  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
   }
 
   let userData = allHotelData[username].userData;
@@ -402,8 +377,7 @@ userData.testLevel = 0;
 skillsData.userData = userData;
 allHotelData[username] = skillsData;
 
-syncSkillsAcrossUsers(skillsData);
-  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
 
   closeTestPopup();
   showLevelUpPopup("Total Level", userData.actualLevel);
@@ -464,8 +438,7 @@ function toggleSkillItem(skillName, itemIndex) {
     }
     
     allHotelData[username] = skillsData;
-    syncSkillsAcrossUsers(skillsData);
-  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
 
     // Recalculate skill level based on total experience
     const newLevel = calculateLevelFromExp(skill.totalExp);
@@ -492,8 +465,7 @@ function toggleSkillItem(skillName, itemIndex) {
       userData.canTakeTest = true;
       userData.testLevel = calculatedLevel;
       allHotelData[username].userData = userData;
-      syncSkillsAcrossUsers(skillsData);
-  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+      localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
     }
 
     updateDisplay();
@@ -557,20 +529,6 @@ function toggleSkillItem(skillName, itemIndex) {
            </div>`}
         </div>
       `;
-      
-      if (isManager) {
-  const editBtn = document.createElement('button');
-  editBtn.textContent = '✏️ Edit';
-  editBtn.style = 'margin-top: 10px; background: #edf2f7; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer;';
-  editBtn.onclick = () => showEditSkillModal(skillName);
-  card.appendChild(editBtn);
-  const delBtn = document.createElement('button');
-  delBtn.textContent = '🗑️ Delete';
-  delBtn.style = 'margin-top: 10px; margin-left: 10px; background: #feb2b2; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer;';
-  delBtn.onclick = (e) => { e.stopPropagation(); deleteSkill(skillName); };
-  card.appendChild(delBtn);
-}
-
 
       if (!skill.locked) {
         card.onclick = () => showSkillDetail(skillName);
@@ -578,62 +536,9 @@ function toggleSkillItem(skillName, itemIndex) {
 
       grid.appendChild(card);
     });
-
-    // Add "Add New Skill" button for managers
-if (isManager) {
-  const addBtn = document.createElement('button');
-  addBtn.textContent = '+ Add New Skill';
-  addBtn.style = 'background: #48bb78; color: white; padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; margin-top: 20px;';
-  addBtn.onclick = () => showEditSkillModal('');
-grid.insertAdjacentElement('afterend', addBtn);
-}
-
   }
 
-
-function syncSkillsAcrossUsers(updatedSkillsData, deletedSkill = null) {
-  const hotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
-
-  Object.keys(hotelData).forEach(user => {
-    if (!hotelData[user]) return;
-    if (!hotelData[user].userData) hotelData[user].userData = {
-      canTakeTest: false,
-      testLevel: 0,
-      actualLevel: 0
-    };
-    if (deletedSkill) {
-      const deleted = hotelData[user][deletedSkill];
-      if (deleted) {
-        const lostExp = deleted.totalExp || 0;
-        delete hotelData[user][deletedSkill];
-        const totalExp = Object.keys(hotelData[user])
-          .filter(k => k !== 'userData')
-          .reduce((sum, sk) => sum + (hotelData[user][sk]?.totalExp || 0), 0);
-        hotelData[user].userData.actualLevel = Math.floor(totalExp / 100);
-      }
-    } else {
-      Object.keys(updatedSkillsData).forEach(skillName => {
-        hotelData[user][skillName] = JSON.parse(JSON.stringify(updatedSkillsData[skillName]));
-      });
-    }
-  });
-
-  localStorage.setItem('hotelSkillsData', JSON.stringify(hotelData));
-}
-
-function deleteSkill(skillName) {
-  if (!confirm(`Are you sure you want to delete the skill "${skillName}"? This will remove it for all users.`)) return;
-
-  delete skillsData[skillName];
-  syncSkillsAcrossUsers(null, skillName);
-
-  allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
-  skillsData = allHotelData[username];
-  renderSkillsGrid();
-}
-
-
-// Show skill detail page
+  // Show skill detail page
   function showSkillDetail(skillName) {
     const skill = skillsData[skillName];
 
@@ -688,48 +593,6 @@ function deleteSkill(skillName) {
     });
   }
 
-let currentSkillEditing = null;
-
-function showEditSkillModal(skillName) {
-  currentSkillEditing = skillName;
-  const skill = skillsData[skillName] || { items: [] };
-  document.getElementById('editSkillName').value = skillName || '';
-  document.getElementById('editSkillItems').value = (skill.items || []).map(i => i.name).join('\n');
-  document.getElementById('editSkillPopup').style.display = 'flex';
-}
-
-function saveSkillEdit() {
-  const newName = document.getElementById('editSkillName').value.trim();
-  const itemsText = document.getElementById('editSkillItems').value.trim();
-
-  if (!newName || !itemsText) return alert('Fill all fields.');
-
-  const newItems = itemsText.split('\n').map(name => ({
-    name,
-    exp: 10,
-    completed: false
-  }));
-
-  if (newName !== currentSkillEditing && currentSkillEditing) {
-    skillsData[newName] = { ...skillsData[currentSkillEditing], items: newItems };
-    delete skillsData[currentSkillEditing];
-  } else {
-    skillsData[newName] = skillsData[newName] || { level: 0, totalExp: 0, items: [] };
-    skillsData[newName].items = newItems;
-  }
-
-  allHotelData[username] = skillsData;
-  syncSkillsAcrossUsers(skillsData);
-  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
-  closeEditSkillPopup();
-  renderSkillsGrid();
-}
-
-function closeEditSkillPopup() {
-  document.getElementById('editSkillPopup').style.display = 'none';
-}
-
-  
   // Show main page
   function showMainPage() {
     document.getElementById('mainPage').style.display = 'block';
