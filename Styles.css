@@ -48,7 +48,7 @@ body {
 }
 
 .header-svg img {
-    width: 80px; /* make SVG bigger */
+    width: 200px; /* make SVG bigger */
     height: auto;
 }
 
