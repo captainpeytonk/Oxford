@@ -344,4 +344,21 @@ body {
     color: #666;
     font-weight: bold;
 }
+.welcome-message {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  color: #fefcbf;
+  font-weight: bold;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 20px;
+  border-radius: 20px;
+  display: inline-block;
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
   </style>
