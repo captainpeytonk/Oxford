@@ -1,4 +1,6 @@
   <style>
+/* CenteredHeader.css - Full version with centered SVG and Test button */
+
 * {
     margin: 0;
     padding: 0;
@@ -23,55 +25,21 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    padding: 0 20px;
+    padding: 0 40px; /* More centered */
     color: white;
-    position: relative;
     flex-wrap: wrap;
 }
 
-.header-center {
-    text-align: center;
-    flex: 1 1 auto;
-}
-
-.header-center h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-}
-
-.header-svg {
-    position: absolute;
-    right: 0;
-    margin-left: 100px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 60px;
-}
-
-.header-svg img {
-    width: 200px; /* make SVG bigger */
-    height: auto;
-}
-
-.header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
-
 .header-side {
-    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 .test-btn {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
     background: linear-gradient(135deg, #f6ad55, #ed8936);
     color: white;
     border: none;
-    margin: 100px; /* remove extra spacing */
     padding: 10px 18px;
     border-radius: 25px;
     cursor: pointer;
@@ -83,7 +51,7 @@ body {
 }
 
 .test-btn:hover {
-    transform: translateY(-50%) scale(1.05);
+    transform: scale(1.05);
     box-shadow: 0 6px 20px rgba(0,0,0,0.3);
 }
 
@@ -99,6 +67,23 @@ body {
     100% { box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 }
 
+.header-center {
+    text-align: center;
+    flex: 1;
+}
+
+.header-center h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.header-svg img {
+    width: 60px;
+    height: auto;
+}
+
+/* --- Remaining unchanged styles from original file --- */
 .total-level {
     background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
@@ -377,6 +362,7 @@ body {
     color: #666;
     font-weight: bold;
 }
+
 .welcome-message {
     font-size: 1.2rem;
     margin-top: 0;
@@ -391,7 +377,7 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
   </style>
