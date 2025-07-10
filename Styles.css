@@ -1,5 +1,5 @@
   <style>
-/* CenteredHeader.css - Full version with centered SVG and Test button */
+/* Full CSS with centered header and updated skill colors */
 
 * {
     margin: 0;
@@ -22,9 +22,9 @@ body {
 
 .header {
     display: flex;
-    justify-content: center; /* Center all elements as a group */
+    justify-content: center;
     align-items: center;
-    gap: 40px; /* Controls spacing between button, title, and SVG */
+    gap: 40px;
     margin-bottom: 20px;
     padding: 0 20px;
     color: white;
@@ -34,6 +34,21 @@ body {
 .header-side,
 .header-svg {
     flex: 0 0 auto;
+}
+
+.header-center {
+    text-align: center;
+}
+
+.header-center h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.header-svg img {
+    width: 60px;
+    height: auto;
 }
 
 .test-btn {
@@ -67,22 +82,6 @@ body {
     100% { box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 }
 
-.header-center {
-    text-align: center;
-}
-
-.header-center h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.header-svg img {
-    width: 200px;
-    height: auto;
-}
-
-/* --- Remaining unchanged styles from original file --- */
 .total-level {
     background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
@@ -107,7 +106,7 @@ body {
 }
 
 .exp-fill {
-    background: linear-gradient(90deg, #F5F566, #F5C566);
+    background: #edcf2e;
     height: 100%;
     transition: width 0.5s ease;
     border-radius: 25px;
@@ -159,7 +158,7 @@ body {
 }
 
 .skill-level {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: #edcf2e;
     color: white;
     padding: 5px 15px;
     border-radius: 20px;
@@ -180,7 +179,7 @@ body {
 }
 
 .skill-exp-fill {
-    background: linear-gradient(90deg, #48bb78, #38a169);
+    background: #edcf2e;
     height: 100%;
     transition: width 0.5s ease;
 }
@@ -218,7 +217,7 @@ body {
     border-radius: 10px;
     padding: 15px;
     margin-bottom: 10px;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #edcf2e;
     transition: all 0.3s ease;
 }
 
@@ -240,7 +239,7 @@ body {
 }
 
 .skill-item-exp {
-    color: #667eea;
+    color: #edcf2e;
     font-weight: bold;
 }
 
@@ -251,7 +250,7 @@ body {
 }
 
 .skill-checkbox:checked {
-    accent-color: #667eea;
+    accent-color: #edcf2e;
 }
 
 .skill-checkbox:disabled {
@@ -319,7 +318,7 @@ body {
     border-radius: 8px;
     padding: 12px;
     margin-bottom: 10px;
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #edcf2e;
 }
 
 .test-item label {
