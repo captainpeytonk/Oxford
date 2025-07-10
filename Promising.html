@@ -193,6 +193,7 @@
   // Step 2: Get current user and user-specific skills data
   const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
   const username = loggedInUser?.name || 'guest';
+  document.getElementById('welcomeMessage').textContent = `Welcome, ${username}!`;
   let allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
 
   if (!allHotelData[username]) {
