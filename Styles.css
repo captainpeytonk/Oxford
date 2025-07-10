@@ -42,7 +42,7 @@ body {
 .header-svg {
     position: absolute;
     right: 0;
-    margin-left: -5px;
+    margin-left: 100px;
     top: 50%;
     transform: translateY(-50%);
     width: 60px;
@@ -71,7 +71,7 @@ body {
     background: linear-gradient(135deg, #f6ad55, #ed8936);
     color: white;
     border: none;
-    margin: -10px; /* remove extra spacing */
+    margin: 100px; /* remove extra spacing */
     padding: 10px 18px;
     border-radius: 25px;
     cursor: pointer;
