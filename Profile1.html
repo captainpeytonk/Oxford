@@ -47,11 +47,26 @@ const getRoleColor = (role) => {
 
     function renderApp() {
       app.innerHTML = '';
+      renderIntroBanner();
       renderHeader();
       renderForms();
       renderProfiles();
     }
+function renderIntroBanner() {
+  const banner = document.createElement('div');
+  banner.className = 'flex justify-between items-center bg-yellow-50 rounded-lg shadow p-6 mb-6';
 
+  banner.innerHTML = `
+    <div>
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900 text-center md:text-left">Welcome to your Hostel Skills Training</h2>
+      <p class="text-gray-700 mt-1 text-center md:text-left">Check off skills you've learned then take a test to earn rewards</p>
+    </div>
+    <img src="Yellow_aligned.svg" alt="Training Graphic" class="w-[200px] h-auto ml-6 hidden md:block">
+  `;
+
+  app.appendChild(banner);
+}
+    
     function renderHeader() {
       const header = document.createElement('div');
       header.className = 'bg-white rounded-lg shadow-sm p-6 mb-6 flex justify-between items-center';
