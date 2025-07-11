@@ -395,8 +395,12 @@ function submitTest() {
   const managerProfiles = profiles.filter(p => p.role === 'manager');
   const managerApproved = managerProfiles.some(manager => manager.password === enteredPassword);
 
+  if (checkboxes.length === 0) {
   if (!managerApproved) {
     alert("Invalid manager password. Test cannot be submitted.");
+    return;
+  }
+      completeTest(); // ✅ pass test
     return;
   }
 
@@ -405,8 +409,10 @@ function submitTest() {
     alert("Please complete all test items or have manager approve.");
     return;
   }
+    completeTest();
+}
 
-  // Test approved, update level
+function completeTest() {
 // Lock all tested items (completed items from unlocked categories)
 Object.keys(skillsData).forEach(category => {
   if (category === 'Lead Skills' || skillsData[category].locked) return;
