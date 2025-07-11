@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Hotel Skills Training</title>
+  <title>Hostel Skills Training</title>
 <link rel="stylesheet" href="Styles.css">
 </head>
 <header>
@@ -20,7 +20,7 @@
   </div>
   
   <div class="header-center">
-    <h1>🏨 Hotel Skills Training</h1>
+    <h1> Hostel Skills Training</h1>
     <div class="welcome-message" id="welcomeMessage"></div>
   </div>
   
@@ -453,7 +453,7 @@ localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
   // Show level up popup
   function showLevelUpPopup(skillName, newLevel) {
     const popup = document.getElementById('levelUpPopup');
-    const message = document.getElementById('levelUpMessage');
+    const message = document.getElementById('');
     if (skillName === "Total Level") {
       message.textContent = `Congratulations! You reached Total Level ${newLevel}!`;
     } else {
@@ -465,7 +465,7 @@ localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
   // Show max level popup
   function showMaxLevelPopup(skillName) {
     const popup = document.getElementById('levelUpPopup');
-    const message = document.getElementById('levelUpMessage');
+    const message = document.getElementById('');
     message.textContent = `🎉 Congratulations! You've reached MAX LEVEL in ${skillName}! 🎉`;
     popup.style.display = 'flex';
   }
