@@ -390,22 +390,21 @@ function submitTest() {
   const passwordInput = document.getElementById('managerApprovalPassword');
   const enteredPassword = passwordInput.value.trim();
 
-
-// Get manager profiles from localStorage
-const profiles = JSON.parse(localStorage.getItem('profiles') || '[]');
-const managerProfiles = profiles.filter(p => p.role === 'manager');
-const managerApproved = managerProfiles.some(manager => manager.password === enteredPassword);
-
+  // Get manager profiles from localStorage
+  const profiles = JSON.parse(localStorage.getItem('profiles') || '[]');
+  const managerProfiles = profiles.filter(p => p.role === 'manager');
+  const managerApproved = managerProfiles.some(manager => manager.password === enteredPassword);
 
   if (!managerApproved) {
     alert("Invalid manager password. Test cannot be submitted.");
     return;
   }
 
-  if (checked.length !== checkboxes.length && checkboxes.length > 0 && !managerApproved) {
-  alert("Please complete all test items or have manager approve.");
-  return;
-}
+  // If there are test items, ensure all are checked OR allow override by manager
+  if (checkboxes.length > 0 && checked.length !== checkboxes.length && !managerApproved) {
+    alert("Please complete all test items or have manager approve.");
+    return;
+  }
 
   // Test approved, update level
 // Lock all tested items (completed items from unlocked categories)
