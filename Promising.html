@@ -453,9 +453,9 @@ localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
   // Show level up popup
   function showLevelUpPopup(skillName, newLevel) {
     const popup = document.getElementById('levelUpPopup');
-    const message = document.getElementById('');
+    const message = document.getElementById('levelUpMessage');
     if (skillName === "Total Level") {
-      message.textContent = `Congratulations! You reached Total Level ${newLevel}!`;
+      message.textContent = `Congratulations! See your manager for your reward 🙂! You reached Total Level ${newLevel}!`;
     } else {
       message.textContent = `${skillName} reached Level ${newLevel}!`;
     }
@@ -465,7 +465,7 @@ localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
   // Show max level popup
   function showMaxLevelPopup(skillName) {
     const popup = document.getElementById('levelUpPopup');
-    const message = document.getElementById('');
+    const message = document.getElementById('levelUpMessage');
     message.textContent = `🎉 Congratulations! You've reached MAX LEVEL in ${skillName}! 🎉`;
     popup.style.display = 'flex';
   }
