@@ -209,9 +209,11 @@ body {
 }
 
 .skill-items {
-  max-height: 400px; /* Adjust height as needed */
+  max-height: 400px;
   overflow-y: auto;
-  padding-right: 8px; /* Optional for scrollbar space */
+  padding-right: 10px;
+  margin-top: 10px;
+  border-top: 1px solid #ccc;
 }
 
 .skill-item {
