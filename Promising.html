@@ -396,8 +396,6 @@ const profiles = JSON.parse(localStorage.getItem('profiles') || '[]');
 const managerProfiles = profiles.filter(p => p.role === 'manager');
 const managerApproved = managerProfiles.some(manager => manager.password === enteredPassword);
 
-  // Check if entered password matches any manager's password
-  const managerApproved = managerProfiles.some(manager => manager.password === enteredPassword);
 
   if (!managerApproved) {
     alert("Invalid manager password. Test cannot be submitted.");
