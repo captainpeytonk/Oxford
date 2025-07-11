@@ -368,20 +368,22 @@ function generateTestItems() {
 
 
   // Update test progress
-  function updateTestProgress() {
-    const checkboxes = document.querySelectorAll('#testContent input[type="checkbox"]');
-    const checked = document.querySelectorAll('#testContent input[type="checkbox"]:checked');
-    const progress = document.getElementById('testProgress');
-    const submitBtn = document.getElementById('testSubmit');
-    
-    progress.textContent = `Progress: ${checked.length}/${checkboxes.length}`;
-    
-    if (checked.length === checkboxes.length && checkboxes.length > 0) {
-      submitBtn.disabled = false;
-    } else {
-      submitBtn.disabled = true;
-    }
+function updateTestProgress() {
+  const checkboxes = document.querySelectorAll('#testContent input[type="checkbox"]');
+  const checked = document.querySelectorAll('#testContent input[type="checkbox"]:checked');
+  const progress = document.getElementById('testProgress');
+  const submitBtn = document.getElementById('testSubmit');
+  
+  progress.textContent = `Progress: ${checked.length}/${checkboxes.length}`;
+
+  // ✅ Allow submit if: all completed, or manager can override later, or nothing to complete
+  if (checkboxes.length === 0 || checked.length === checkboxes.length) {
+    submitBtn.disabled = false;
+  } else {
+    submitBtn.disabled = true;
   }
+}
+
 
   // Submit test
 function submitTest() {
@@ -405,7 +407,7 @@ function submitTest() {
   }
 
   // If there are test items, ensure all are checked OR allow override by manager
-  if (checkboxes.length > 0 && checked.length !== checkboxes.length && !managerApproved) {
+  if (checked.length !== checkboxes.length && !managerApproved) {
     alert("Please complete all test items or have manager approve.");
     return;
   }
