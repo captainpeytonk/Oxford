@@ -51,6 +51,22 @@ body {
     height: auto;
 }
 
+  .home-link {
+    font-size: 1.1rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #ccc;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .home-link:hover {
+    background-color: #e2e8f0;
+    color: #2d3748;
+  }
+
 .test-btn {
     background: linear-gradient(135deg, #f6ad55, #ed8936);
     color: white;
