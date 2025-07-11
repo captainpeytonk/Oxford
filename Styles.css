@@ -312,10 +312,12 @@ body {
     color: #a0aec0;
 }
 
-.test-content {
-    text-align: left;
-    margin: 20px 0;
-}
+  .test-content {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 10px;
+    padding-right: 10px;
+  }
 
 .test-item {
     background: #f8f9fa;
