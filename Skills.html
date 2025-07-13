@@ -192,7 +192,7 @@
         { name: "Take Payments (Nonrefundables/Voucher)", exp: 10, completed: false },
         { name: "Know when/how to offer refunds", exp: 10, completed: false },
         { name: "Handle Complaints", exp: 10, completed: false },
-        { name: "Reply to Reviews", exp: 9, completed: false }
+        { name: "Reply to Reviews", exp: 10, completed: false }
       ]
     }
   };
@@ -291,10 +291,10 @@
   // Check if Lead Skills should be unlocked or locked
   function checkLeadSkillsUnlock() {
     const totalLevel = userData.actualLevel;
-    if (totalLevel >= 3 && skillsData["Lead Skills"].locked) {
+    if (totalLevel >= 5 && skillsData["Lead Skills"].locked) {
       skillsData["Lead Skills"].locked = false;
       renderSkillsGrid();
-    } else if (totalLevel < 3 && !skillsData["Lead Skills"].locked) {
+    } else if (totalLevel < 5 && !skillsData["Lead Skills"].locked) {
       skillsData["Lead Skills"].locked = true;
       // Reset Lead Skills if they become locked again
       skillsData["Lead Skills"].level = 0;
