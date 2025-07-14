@@ -397,21 +397,19 @@ function submitTest() {
   const managerProfiles = profiles.filter(p => p.role === 'manager');
   const managerApproved = managerProfiles.some(manager => manager.password === enteredPassword);
 
-  if (checkboxes.length === 0) {
+  // Always require manager approval
   if (!managerApproved) {
-    alert("Invalid manager password. Test cannot be submitted.");
-    return;
-  }
-      completeTest(); // ✅ pass test
+    alert("Manager password is required to approve and submit the test.");
     return;
   }
 
-  // If there are test items, ensure all are checked OR allow override by manager
-  if (checked.length !== checkboxes.length && !managerApproved) {
-    alert("Please complete all test items or have manager approve.");
+  // If there are checkboxes, all must be completed
+  if (checkboxes.length > 0 && checked.length !== checkboxes.length) {
+    alert("Please complete all test items before submitting.");
     return;
   }
-    completeTest();
+
+  completeTest();
 }
 
 function completeTest() {
