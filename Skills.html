@@ -206,6 +206,9 @@
   if (!allHotelData[username]) {
     allHotelData[username] = structuredClone(defaultSkillsData);
     localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+
+  // Ensure test eligibility is up‑to‑date
+  refreshTestEligibility();
   }
 
   let skillsData = allHotelData[username];
@@ -281,6 +284,26 @@
     });
     return total;
   }
+
+  
+  // Re‑evaluate whether the user may take the next total‑level test
+  function refreshTestEligibility() {
+    const totalExp  = calculateTotalExp();
+    const calcLevel = Math.floor(totalExp / 100);
+
+    if (calcLevel > userData.actualLevel) {
+      userData.canTakeTest = true;
+      userData.testLevel   = calcLevel;
+    } else {
+      userData.canTakeTest = false;
+      userData.testLevel   = 0;
+    }
+
+    // Persist changes
+    allHotelData[username].userData = userData;
+    localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+  }
+
 
   // Check if a skill category is at max level (all items completed)
   function isSkillMaxLevel(skillName) {
@@ -515,18 +538,12 @@ function toggleSkillItem(skillName, itemIndex) {
         showMaxLevelPopup(skillName);
       }, 1500);
     }
-
-    // Check if user can take test for next total level
-    const totalExp = calculateTotalExp();
-    const calculatedLevel = Math.floor(totalExp / 100);
-    if (calculatedLevel > userData.actualLevel && !userData.canTakeTest) {
-      userData.canTakeTest = true;
-      userData.testLevel = calculatedLevel;
-      allHotelData[username].userData = userData;
-      localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
-    }
+    // Refresh test eligibility after EXP change
+    refreshTestEligibility();
 
     updateDisplay();
+  }
+
   }
 
   // Update all displays
@@ -659,6 +676,7 @@ function toggleSkillItem(skillName, itemIndex) {
 
   // Initialize the application
   function init() {
+    refreshTestEligibility();
     checkLeadSkillsUnlock();
     updateDisplay();
     showMainPage();
