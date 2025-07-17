@@ -72,64 +72,71 @@
   </div>
 
   <script>
-    const categories = ["Reception Skills", "Folding"];
+<script>
+  const categories = ["Reception Skills", "Folding"];
 
-    function addMedia(category, buttonEl) {
-      const input = buttonEl.previousElementSibling;
-      const url = input.value.trim();
-      if (!url) return;
+  function addMedia(category, buttonEl) {
+    const input = buttonEl.previousElementSibling;
+    const url = input.value.trim();
+    if (!url) return;
 
-      const type = guessMediaType(url);
-      if (!type) {
-        alert("Please enter a valid image or video URL.");
-        return;
-      }
+    const type = guessMediaType(url); // 'image', 'video', or 'link'
 
-      saveToLocalStorage(category, url, type);
-      renderMedia(category, url, type);
-      input.value = '';
+    saveToLocalStorage(category, url, type);
+    renderMedia(category, url, type);
+    input.value = '';
+  }
+
+  function guessMediaType(url) {
+    const lower = url.toLowerCase();
+    if (lower.match(/\.(jpg|jpeg|png|gif|webp)$/)) return 'image';
+    if (lower.match(/\.(mp4|webm|ogg)$/)) return 'video';
+    return 'link'; // fallback for everything else
+  }
+
+  function saveToLocalStorage(category, url, type) {
+    const stored = JSON.parse(localStorage.getItem(category) || '[]');
+    stored.push({ url, type });
+    localStorage.setItem(category, JSON.stringify(stored));
+  }
+
+  function renderMedia(category, url, type) {
+    const gallery = document.getElementById(`gallery-${category}`);
+    let el;
+
+    if (type === 'image') {
+      el = document.createElement('img');
+      el.src = url;
+    } else if (type === 'video') {
+      el = document.createElement('video');
+      el.src = url;
+      el.controls = true;
+    } else {
+      el = document.createElement('a');
+      el.href = url;
+      el.target = '_blank';
+      el.textContent = '🔗 ' + url;
+      el.style.display = 'inline-block';
+      el.style.padding = '10px';
+      el.style.background = '#eee';
+      el.style.borderRadius = '6px';
+      el.style.textDecoration = 'none';
     }
 
-    function guessMediaType(url) {
-      const lower = url.toLowerCase();
-      if (lower.match(/\.(jpg|jpeg|png|gif|webp)$/)) return 'image';
-      if (lower.match(/\.(mp4|webm|ogg)$/)) return 'video';
-      return null;
-    }
+    gallery.appendChild(el);
+  }
 
-    function saveToLocalStorage(category, url, type) {
+  function loadStoredMedia() {
+    categories.forEach(category => {
       const stored = JSON.parse(localStorage.getItem(category) || '[]');
-      stored.push({ url, type });
-      localStorage.setItem(category, JSON.stringify(stored));
-    }
-
-    function renderMedia(category, url, type) {
-      const gallery = document.getElementById(`gallery-${category}`);
-      let el;
-
-      if (type === 'image') {
-        el = document.createElement('img');
-        el.src = url;
-      } else if (type === 'video') {
-        el = document.createElement('video');
-        el.src = url;
-        el.controls = true;
-      }
-
-      gallery.appendChild(el);
-    }
-
-    function loadStoredMedia() {
-      categories.forEach(category => {
-        const stored = JSON.parse(localStorage.getItem(category) || '[]');
-        stored.forEach(item => {
-          renderMedia(category, item.url, item.type);
-        });
+      stored.forEach(item => {
+        renderMedia(category, item.url, item.type);
       });
-    }
+    });
+  }
 
-    // On page load
-    loadStoredMedia();
+  // On page load
+  loadStoredMedia();
   </script>
 </body>
 </html>
