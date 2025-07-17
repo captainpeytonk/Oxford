@@ -2,141 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Media Link Upload with Categories</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      background: #f9f9f9;
-    }
-
-    .category {
-      margin-bottom: 40px;
-    }
-
-    .input-area {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .input-area input {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-
-    .input-area button {
-      padding: 8px 12px;
-      border: none;
-      background-color: #007BFF;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .media-gallery {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .media-gallery img,
-    .media-gallery video {
-      max-width: 150px;
-      border-radius: 6px;
-    }
-  </style>
+  <title>Play Local Media</title>
 </head>
 <body>
+  <h1>Playing Local Media Files</h1>
 
-  <h1>Add Media Links</h1>
+  <h2>Video Example:</h2>
+  <video src="training.mp4" width="480" controls></video>
 
-  <div class="category" data-category="Reception Skills">
-    <h2>Reception Skills</h2>
-    <div class="input-area">
-      <input type="text" placeholder="Paste image or video URL here" />
-      <button onclick="addMedia('Reception Skills', this)">Add</button>
-    </div>
-    <div class="media-gallery" id="gallery-Reception Skills"></div>
-  </div>
-
-  <div class="category" data-category="Folding">
-    <h2>Folding</h2>
-    <div class="input-area">
-      <input type="text" placeholder="Paste image or video URL here" />
-      <button onclick="addMedia('Folding', this)">Add</button>
-    </div>
-    <div class="media-gallery" id="gallery-Folding"></div>
-  </div>
-
-  <script>
-<script>
-  const categories = ["Reception Skills", "Folding"];
-
-  function addMedia(category, buttonEl) {
-    const input = buttonEl.previousElementSibling;
-    const url = input.value.trim();
-    if (!url) return;
-
-    const type = guessMediaType(url); // 'image', 'video', or 'link'
-
-    saveToLocalStorage(category, url, type);
-    renderMedia(category, url, type);
-    input.value = '';
-  }
-
-  function guessMediaType(url) {
-    const lower = url.toLowerCase();
-    if (lower.match(/\.(jpg|jpeg|png|gif|webp)$/)) return 'image';
-    if (lower.match(/\.(mp4|webm|ogg)$/)) return 'video';
-    return 'link'; // fallback for everything else
-  }
-
-  function saveToLocalStorage(category, url, type) {
-    const stored = JSON.parse(localStorage.getItem(category) || '[]');
-    stored.push({ url, type });
-    localStorage.setItem(category, JSON.stringify(stored));
-  }
-
-  function renderMedia(category, url, type) {
-    const gallery = document.getElementById(`gallery-${category}`);
-    let el;
-
-    if (type === 'image') {
-      el = document.createElement('img');
-      el.src = url;
-    } else if (type === 'video') {
-      el = document.createElement('video');
-      el.src = url;
-      el.controls = true;
-    } else {
-      el = document.createElement('a');
-      el.href = url;
-      el.target = '_blank';
-      el.textContent = '🔗 ' + url;
-      el.style.display = 'inline-block';
-      el.style.padding = '10px';
-      el.style.background = '#eee';
-      el.style.borderRadius = '6px';
-      el.style.textDecoration = 'none';
-    }
-
-    gallery.appendChild(el);
-  }
-
-  function loadStoredMedia() {
-    categories.forEach(category => {
-      const stored = JSON.parse(localStorage.getItem(category) || '[]');
-      stored.forEach(item => {
-        renderMedia(category, item.url, item.type);
-      });
-    });
-  }
-
-  // On page load
-  loadStoredMedia();
-  </script>
+  <h2>Image Example:</h2>
+  <img src="folding.jpg" width="300" alt="Folding Example" />
 </body>
 </html>
