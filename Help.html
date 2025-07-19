@@ -281,7 +281,7 @@
 
   function postComment(sectionId) {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-    if (!loggedInUser || !loggedInUser.username) {
+    if (!loggedInUser || !loggedInUser.name) {
       alert('You must be logged in to post a comment.');
       return;
     }
@@ -323,27 +323,32 @@
     renderComments(sectionId);
   }
 
-  function renderComments(sectionId) {
-    const section = document.querySelector(`[data-id="${sectionId}"]`);
-    const list = section.querySelector('.comments-list');
-    list.innerHTML = '';
+function renderComments(sectionId) {
+  const section = document.querySelector(`[data-id="${sectionId}"]`);
+  const list = section.querySelector('.comments-list');
+  list.innerHTML = '';
 
-    const comments = JSON.parse(localStorage.getItem(sectionId)) || [];
+  const comments = JSON.parse(localStorage.getItem(sectionId)) || [];
+  const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
 
-    comments.forEach(c => {
-      const div = document.createElement('div');
-      div.className = 'comment';
-      div.innerHTML = `
-        <div>
-          <strong>${c.user}</strong>
-          <span style="font-size: 0.85em; color: #666;"> on ${c.time}</span><br/>
-          <span>${c.text}</span>
-        </div>
-        <button onclick="deleteComment('${sectionId}', '${c.id}')">Delete</button>
-      `;
-      list.appendChild(div);
-    });
-  }
+  comments.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'comment';
+
+    const canDelete = loggedInUser && loggedInUser.name === c.user;
+
+    div.innerHTML = `
+      <div>
+        <strong>${c.user}</strong>
+        <span style="font-size: 0.85em; color: #666;"> on ${c.time}</span><br/>
+        <span>${c.text}</span>
+      </div>
+      ${canDelete ? `<button onclick="deleteComment('${sectionId}', '${c.id}')">Delete</button>` : ''}
+    `;
+
+    list.appendChild(div);
+  });
+}
 
   function loadAllContent() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
