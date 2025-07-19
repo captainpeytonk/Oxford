@@ -335,7 +335,8 @@ function renderComments(sectionId) {
     const div = document.createElement('div');
     div.className = 'comment';
 
-    const canDelete = loggedInUser && loggedInUser.name === c.user;
+    const canDelete = loggedInUser &&
+      (loggedInUser.name === c.user || loggedInUser.role === 'manager');
 
     div.innerHTML = `
       <div>
