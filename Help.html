@@ -1,54 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Hostel Training Help</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      color: #333;
       padding: 20px;
-      background-color: #f8f8f8;
     }
 
     h1 {
       text-align: center;
-      color: #333;
+      margin-bottom: 30px;
+      font-size: 2rem;
+      color: #222;
     }
 
-    .tabs {
+    .container {
       display: flex;
-      margin-bottom: 20px;
-      justify-content: center;
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .sidebar {
+      flex: 1;
+      background-color: #2c3e50;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
     }
 
     .tab-button {
-      padding: 10px 20px;
-      margin: 0 10px;
-      cursor: pointer;
-      background-color: #ddd;
+      padding: 15px 20px;
+      background: none;
       border: none;
-      border-radius: 5px;
+      color: #ecf0f1;
+      text-align: left;
       font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+      width: 100%;
     }
 
+    .tab-button:hover,
     .tab-button.active {
-      background-color: #4CAF50;
-      color: white;
+      background-color: #34495e;
+    }
+
+    .content-area {
+      flex: 3;
+      padding: 30px;
     }
 
     .tab-content {
       display: none;
-      text-align: center;
+      animation: fadeIn 0.4s ease-in-out;
     }
 
     .tab-content.active {
       display: block;
     }
 
-    video, img {
-      margin-top: 20px;
-      max-width: 100%;
-      height: auto;
+    .training-card {
+      background-color: #fafafa;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: transform 0.2s;
+    }
+
+    .training-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .training-card h2 {
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+
+    video,
+    img {
+      width: 100%;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        flex-direction: row;
+        overflow-x: auto;
+      }
+
+      .tab-button {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .content-area {
+        padding: 20px;
+      }
     }
   </style>
 </head>
@@ -56,19 +130,27 @@
 
   <h1>Hostel Training Help</h1>
 
-  <div class="tabs">
-    <button class="tab-button active" onclick="showTab('reception')">Reception</button>
-    <button class="tab-button" onclick="showTab('folding')">Folding</button>
-  </div>
+  <div class="container">
+    <div class="sidebar">
+      <button class="tab-button active" onclick="showTab('reception')">Reception</button>
+      <button class="tab-button" onclick="showTab('folding')">Folding</button>
+    </div>
 
-  <div id="reception" class="tab-content active">
-    <h2>Reception Training Video</h2>
-    <video src="media/training.mp4" width="480" controls></video>
-  </div>
+    <div class="content-area">
+      <div id="reception" class="tab-content active">
+        <div class="training-card">
+          <h2>Reception Training</h2>
+          <video src="media/training.mp4" controls></video>
+        </div>
+      </div>
 
-  <div id="folding" class="tab-content">
-    <h2>Folding Instructions</h2>
-    <img src="media/folding.jpg" width="300" alt="Folding Example" />
+      <div id="folding" class="tab-content">
+        <div class="training-card">
+          <h2>Folding Instructions</h2>
+          <img src="media/folding.jpg" alt="Folding Example" />
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -76,18 +158,12 @@
       const contents = document.querySelectorAll('.tab-content');
       const buttons = document.querySelectorAll('.tab-button');
 
-      contents.forEach(content => {
-        content.classList.remove('active');
-      });
-
-      buttons.forEach(button => {
-        button.classList.remove('active');
-      });
+      contents.forEach(c => c.classList.remove('active'));
+      buttons.forEach(b => b.classList.remove('active'));
 
       document.getElementById(tabId).classList.add('active');
       event.currentTarget.classList.add('active');
     }
   </script>
-
 </body>
 </html>
