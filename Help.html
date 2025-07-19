@@ -252,8 +252,6 @@
 </div>
 
 <script>
-  const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-
   function showTab(tabId) {
     const contents = document.querySelectorAll('.tab-content');
     const buttons = document.querySelectorAll('.tab-button');
@@ -268,6 +266,7 @@
   }
 
   function saveDescription(id) {
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
     if (!loggedInUser || loggedInUser.role !== 'manager') {
       alert('Only managers can edit descriptions.');
       return;
@@ -279,7 +278,8 @@
   }
 
   function postComment(sectionId) {
-    if (!loggedInUser) {
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    if (!loggedInUser || !loggedInUser.username) {
       alert('You must be logged in to post a comment.');
       return;
     }
@@ -299,16 +299,15 @@
       hour12: true
     });
 
-    const commentId = `${sectionId}-${Date.now()}`;
     const comment = {
-      id: commentId,
+      id: `${sectionId}-${Date.now()}`,
       text: value,
       user: loggedInUser.username,
       time: timestamp
     };
 
     let comments = JSON.parse(localStorage.getItem(sectionId)) || [];
-    comments.unshift(comment); // Add to the beginning
+    comments.unshift(comment); // Newest first
     localStorage.setItem(sectionId, JSON.stringify(comments));
 
     renderComments(sectionId);
@@ -334,7 +333,8 @@
       div.className = 'comment';
       div.innerHTML = `
         <div>
-          <strong>${c.user}</strong> <span style="font-size: 0.85em; color: #666;">on ${c.time}</span><br/>
+          <strong>${c.user}</strong>
+          <span style="font-size: 0.85em; color: #666;">on ${c.time}</span><br/>
           <span>${c.text}</span>
         </div>
         <button onclick="deleteComment('${sectionId}', '${c.id}')">Delete</button>
@@ -344,6 +344,8 @@
   }
 
   function loadAllContent() {
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+
     // Load descriptions
     document.querySelectorAll('.description-box').forEach(section => {
       const id = section.getAttribute('data-id');
@@ -367,10 +369,6 @@
     document.querySelectorAll('.comment-section').forEach(section => {
       const id = section.getAttribute('data-id');
       renderComments(id);
-
-      // Move input to bottom
-      const inputBox = section.querySelector('textarea').parentElement;
-      section.appendChild(inputBox);
     });
   }
 
