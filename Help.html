@@ -279,6 +279,7 @@
   }
 
   function postComment(sectionId) {
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
     if (!loggedInUser) {
       alert('You must be logged in to post a comment.');
       return;
