@@ -222,10 +222,10 @@
 
         <!-- Comments -->
         <div class="comment-section" data-id="comments-reception">
+          <div class="comments-list"></div>
+          </div>
           <textarea placeholder="Post a comment..."></textarea>
           <button onclick="postComment('comments-reception')">Post</button>
-          <div class="comments-list"></div>
-        </div>
       </div>
     </div>
 
@@ -263,7 +263,9 @@
     buttons.forEach(b => b.classList.remove('active'));
 
     document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
+
+    const clickedButton = Array.from(buttons).find(btn => btn.textContent.toLowerCase().includes(tabId));
+    if (clickedButton) clickedButton.classList.add('active');
   }
 
   function saveDescription(id) {
@@ -278,16 +280,36 @@
   }
 
   function postComment(sectionId) {
+    if (!loggedInUser) {
+      alert('You must be logged in to post a comment.');
+      return;
+    }
+
     const section = document.querySelector(`[data-id="${sectionId}"]`);
     const textarea = section.querySelector('textarea');
     const value = textarea.value.trim();
     if (!value) return;
 
+    const now = new Date();
+    const timestamp = now.toLocaleString('default', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+
     const commentId = `${sectionId}-${Date.now()}`;
-    const comment = { id: commentId, text: value };
+    const comment = {
+      id: commentId,
+      text: value,
+      user: loggedInUser.username,
+      time: timestamp
+    };
 
     let comments = JSON.parse(localStorage.getItem(sectionId)) || [];
-    comments.push(comment);
+    comments.unshift(comment); // Add to the beginning
     localStorage.setItem(sectionId, JSON.stringify(comments));
 
     renderComments(sectionId);
@@ -307,11 +329,15 @@
     list.innerHTML = '';
 
     const comments = JSON.parse(localStorage.getItem(sectionId)) || [];
+
     comments.forEach(c => {
       const div = document.createElement('div');
       div.className = 'comment';
       div.innerHTML = `
-        <span>${c.text}</span>
+        <div>
+          <strong>${c.user}</strong> <span style="font-size: 0.85em; color: #666;">on ${c.time}</span><br/>
+          <span>${c.text}</span>
+        </div>
         <button onclick="deleteComment('${sectionId}', '${c.id}')">Delete</button>
       `;
       list.appendChild(div);
@@ -319,18 +345,18 @@
   }
 
   function loadAllContent() {
-    // Descriptions
+    // Load descriptions
     document.querySelectorAll('.description-box').forEach(section => {
       const id = section.getAttribute('data-id');
       const textarea = section.querySelector('textarea');
       const button = section.querySelector('button');
       const saved = localStorage.getItem(id);
+
       if (saved) {
         textarea.value = saved;
         textarea.style.backgroundColor = '#e0ffe0';
       }
 
-      // If not a manager, disable editing
       if (!loggedInUser || loggedInUser.role !== 'manager') {
         textarea.setAttribute('readonly', true);
         textarea.style.backgroundColor = '#f3f3f3';
@@ -338,10 +364,14 @@
       }
     });
 
-    // Comments
+    // Load and render comments
     document.querySelectorAll('.comment-section').forEach(section => {
       const id = section.getAttribute('data-id');
       renderComments(id);
+
+      // Move input to bottom
+      const inputBox = section.querySelector('textarea').parentElement;
+      section.appendChild(inputBox);
     });
   }
 
