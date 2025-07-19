@@ -251,6 +251,9 @@
 </div>
 
 <script>
+<script>
+  const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+
   function showTab(tabId) {
     const contents = document.querySelectorAll('.tab-content');
     const buttons = document.querySelectorAll('.tab-button');
@@ -263,6 +266,10 @@
   }
 
   function saveDescription(id) {
+    if (!loggedInUser || loggedInUser.role !== 'manager') {
+      alert('Only managers can edit descriptions.');
+      return;
+    }
     const container = document.querySelector(`[data-id="${id}"]`);
     const textarea = container.querySelector('textarea');
     localStorage.setItem(id, textarea.value);
@@ -272,19 +279,16 @@
   function postComment(sectionId) {
     const section = document.querySelector(`[data-id="${sectionId}"]`);
     const textarea = section.querySelector('textarea');
-    const list = section.querySelector('.comments-list');
     const value = textarea.value.trim();
     if (!value) return;
 
     const commentId = `${sectionId}-${Date.now()}`;
     const comment = { id: commentId, text: value };
 
-    // Save to localStorage
     let comments = JSON.parse(localStorage.getItem(sectionId)) || [];
     comments.push(comment);
     localStorage.setItem(sectionId, JSON.stringify(comments));
 
-    // Render
     renderComments(sectionId);
     textarea.value = '';
   }
@@ -314,18 +318,26 @@
   }
 
   function loadAllContent() {
-    // Load Descriptions
+    // Descriptions
     document.querySelectorAll('.description-box').forEach(section => {
       const id = section.getAttribute('data-id');
       const textarea = section.querySelector('textarea');
+      const button = section.querySelector('button');
       const saved = localStorage.getItem(id);
       if (saved) {
         textarea.value = saved;
         textarea.style.backgroundColor = '#e0ffe0';
       }
+
+      // If not a manager, disable editing
+      if (!loggedInUser || loggedInUser.role !== 'manager') {
+        textarea.setAttribute('readonly', true);
+        textarea.style.backgroundColor = '#f3f3f3';
+        button.style.display = 'none';
+      }
     });
 
-    // Load Comments
+    // Comments
     document.querySelectorAll('.comment-section').forEach(section => {
       const id = section.getAttribute('data-id');
       renderComments(id);
