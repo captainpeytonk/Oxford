@@ -80,6 +80,7 @@
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
       transition: transform 0.2s;
+      margin-bottom: 20px;
     }
 
     .training-card:hover {
@@ -96,6 +97,48 @@
       width: 100%;
       border-radius: 6px;
       margin-top: 10px;
+    }
+
+    .note-section {
+      margin-top: 20px;
+    }
+
+    .note-section textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      resize: vertical;
+    }
+
+    .note-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .note-controls button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .save-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .edit-btn {
+      background-color: #2196F3;
+      color: white;
+    }
+
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
     }
 
     @keyframes fadeIn {
@@ -141,6 +184,14 @@
         <div class="training-card">
           <h2>Reception Training</h2>
           <video src="media/training.mp4" controls></video>
+          <div class="note-section" data-id="reception-note">
+            <textarea placeholder="Write a note about this training..."></textarea>
+            <div class="note-controls">
+              <button class="save-btn" onclick="saveNote('reception-note')">Save</button>
+              <button class="edit-btn" onclick="editNote('reception-note')">Edit</button>
+              <button class="delete-btn" onclick="deleteNote('reception-note')">Delete</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -148,6 +199,14 @@
         <div class="training-card">
           <h2>Folding Instructions</h2>
           <img src="media/folding.jpg" alt="Folding Example" />
+          <div class="note-section" data-id="folding-note">
+            <textarea placeholder="Write a note about this image..."></textarea>
+            <div class="note-controls">
+              <button class="save-btn" onclick="saveNote('folding-note')">Save</button>
+              <button class="edit-btn" onclick="editNote('folding-note')">Edit</button>
+              <button class="delete-btn" onclick="deleteNote('folding-note')">Delete</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -164,6 +223,46 @@
       document.getElementById(tabId).classList.add('active');
       event.currentTarget.classList.add('active');
     }
+
+    function saveNote(noteId) {
+      const section = document.querySelector(`[data-id="${noteId}"]`);
+      const textarea = section.querySelector('textarea');
+      localStorage.setItem(noteId, textarea.value);
+      textarea.setAttribute('readonly', true);
+      textarea.style.backgroundColor = '#e0ffe0';
+    }
+
+    function editNote(noteId) {
+      const section = document.querySelector(`[data-id="${noteId}"]`);
+      const textarea = section.querySelector('textarea');
+      textarea.removeAttribute('readonly');
+      textarea.style.backgroundColor = '';
+    }
+
+    function deleteNote(noteId) {
+      const section = document.querySelector(`[data-id="${noteId}"]`);
+      const textarea = section.querySelector('textarea');
+      localStorage.removeItem(noteId);
+      textarea.value = '';
+      textarea.removeAttribute('readonly');
+      textarea.style.backgroundColor = '';
+    }
+
+    function loadNotes() {
+      document.querySelectorAll('.note-section').forEach(section => {
+        const id = section.getAttribute('data-id');
+        const textarea = section.querySelector('textarea');
+        const saved = localStorage.getItem(id);
+        if (saved) {
+          textarea.value = saved;
+          textarea.setAttribute('readonly', true);
+          textarea.style.backgroundColor = '#e0ffe0';
+        }
+      });
+    }
+
+    // Load notes on page load
+    window.onload = loadNotes;
   </script>
 </body>
 </html>
