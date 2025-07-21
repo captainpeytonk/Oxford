@@ -326,9 +326,12 @@ function renderIntroBanner() {
               <span class="text-xs px-2 py-1 rounded-full ${getRoleColor(profile.role)}">${profile.role}</span>
             </div>
             <div class="flex gap-2">
-              <span class="icon-btn text-blue-600 hover:bg-blue-50" title="Edit">✏️</span>
-              ${loggedInUser?.role === 'manager' ? `<span class="icon-btn text-red-600 hover:bg-red-50" title="Delete">🗑️</span>` : ''}
-            </div>
+  <span class="icon-btn text-blue-600 hover:bg-blue-50" title="Edit">✏️</span>
+  ${loggedInUser?.role === 'manager' ? `
+    <span class="icon-btn text-red-600 hover:bg-red-50" title="Delete">🗑️</span>
+    <span class="icon-btn text-green-600 hover:bg-green-50" title="Require Retest">🌀</span>
+  ` : ''}
+</div>
           </div>
           <div class="text-sm space-y-1">
             ${profile.email ? `<div>Email: ${profile.email}</div>` : ''}
@@ -351,7 +354,45 @@ function getUserLevel(name) {
 }
 
         
-        const [editBtn, deleteBtn] = card.querySelectorAll('.icon-btn');
+        const [editBtn, deleteBtn, retakeBtn] = card.querySelectorAll('.icon-btn');
+        if (retakeBtn) {
+  retakeBtn.onclick = () => {
+    const confirmReset = confirm(`Require ${profile.name} to retake all completed tests?`);
+    if (!confirmReset) return;
+
+    const allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
+    const userSkills = allHotelData[profile.name];
+    if (userSkills) {
+      // Reset test state
+      Object.keys(userSkills).forEach(key => {
+        if (key === 'userData') return;
+        const category = userSkills[key];
+        if (category.items) {
+          category.items.forEach(item => {
+            if (item.completed) {
+              item.locked = false; // unlock previously locked
+              item.completed = false; // mark as not completed
+              category.totalExp = 0;
+            }
+          });
+        }
+      });
+
+      // Reset userData
+      userSkills.userData = {
+        canTakeTest: true,
+        testLevel: 0,       // Force them to test again
+        actualLevel: 0
+      };
+
+      localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+      alert(`${profile.name} is now required to retake their skills test.`);
+    } else {
+      alert(`No skill data found for ${profile.name}.`);
+    }
+  };
+}
+
         if (editBtn) editBtn.onclick = () => renderCreateForm(profile);
         if (deleteBtn) deleteBtn.onclick = () => {
           if (confirm('Delete this profile?')) {
