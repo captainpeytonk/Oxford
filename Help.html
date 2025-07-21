@@ -205,9 +205,9 @@
 
 <div class="container">
   <div class="sidebar">
-    <button class="tab-button active" onclick="showTab('reception')">Reception</button>
-    <button class="tab-button" onclick="showTab('cloudbeds')">Cloudbeds</button>
-    <button class="tab-button" onclick="showTab('folding')">Folding</button>
+    <button class="tab-button active" data-tab="reception" onclick="showTab('reception')">Reception</button>
+    <button class="tab-button" data-tab="cloudbeds" onclick="showTab('cloudbeds')">Cloudbeds</button>
+    <button class="tab-button" data-tab="folding" onclick="showTab('folding')">Folding</button>
   </div>
 
   <div class="content-area">
@@ -269,9 +269,9 @@
 
         <!-- Comments -->
         <div class="comment-section" data-id="comments-folding">
-          <div class="comments-list"></div>
           <textarea placeholder="Post a comment..."></textarea>
           <button onclick="postComment('comments-folding')">Post</button>
+          <div class="comments-list"></div>
         </div>
       </div>
     </div>
@@ -288,7 +288,7 @@
 
     document.getElementById(tabId).classList.add('active');
 
-    const clickedButton = Array.from(buttons).find(btn => btn.textContent.toLowerCase().includes(tabId));
+    const clickedButton = Array.from(buttons).find(btn => btn.getAttribute('data-tab') === tabId);
     if (clickedButton) clickedButton.classList.add('active');
   }
 
@@ -363,30 +363,17 @@
       const canDelete = loggedInUser &&
         (loggedInUser.name === c.user || loggedInUser.role === 'manager');
 
-      // Create comment content div
-      const contentDiv = document.createElement('div');
-      contentDiv.innerHTML = 
-        `<strong>${escapeHtml(c.user)}</strong> <span style="font-size: 0.85em; color: #666;">on ${escapeHtml(c.time)}</span><br/>` +
-        `<span>${escapeHtml(c.text)}</span>`;
-
-      div.appendChild(contentDiv);
-
-      if (canDelete) {
-        const btn = document.createElement('button');
-        btn.textContent = 'Delete';
-        btn.onclick = () => deleteComment(sectionId, c.id);
-        div.appendChild(btn);
-      }
+      div.innerHTML = `
+        <div>
+          <strong>${c.user}</strong>
+          <span style="font-size: 0.85em; color: #666;"> on ${c.time}</span><br/>
+          <span>${c.text}</span>
+        </div>
+        ${canDelete ? `<button onclick="deleteComment('${sectionId}', '${c.id}')">Delete</button>` : ''}
+      `;
 
       list.appendChild(div);
     });
-  }
-
-  // Helper to escape HTML in user inputs to prevent injection
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
   }
 
   function loadAllContent() {
