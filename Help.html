@@ -233,7 +233,7 @@
     </div>
 
         <!-- Cloudbeds -->
-    <div id="cloudbeds" class="tab-content">
+    <div id="cloudbeds" class="tab-content active">
       <div class="training-card">
         <h2>Cloudbeds Training</h2>
         <video src="media/training.mp4" controls></video>
@@ -298,7 +298,7 @@
       alert('Only managers can edit descriptions.');
       return;
     }
-    const container = document.querySelector([data-id="${id}"]`);
+    const container = document.querySelector(`[data-id="${id}"]`);
     const textarea = container.querySelector('textarea');
     localStorage.setItem(id, textarea.value);
     textarea.style.backgroundColor = '#e0ffe0';
@@ -311,7 +311,7 @@
       return;
     }
 
-    const section = document.querySelector([data-id="${sectionId}"]);
+    const section = document.querySelector(`[data-id="${sectionId}"]`);
     const textarea = section.querySelector('textarea');
     const value = textarea.value.trim();
     if (!value) return;
@@ -327,7 +327,7 @@
     });
 
     const comment = {
-      id: sectionId + '-' + Date.now(),
+      id: `${sectionId}-${Date.now()}`,
       text: value,
       user: loggedInUser.name,
       time: timestamp
@@ -349,7 +349,7 @@
   }
 
 function renderComments(sectionId) {
-  const section = document.querySelector([data-id="${sectionId}"]);
+  const section = document.querySelector(`[data-id="${sectionId}"]`);
   const list = section.querySelector('.comments-list');
   list.innerHTML = '';
 
@@ -363,14 +363,14 @@ function renderComments(sectionId) {
     const canDelete = loggedInUser &&
       (loggedInUser.name === c.user || loggedInUser.role === 'manager');
 
-    div.innerHTML = 
+    div.innerHTML = `
       <div>
         <strong>${c.user}</strong>
         <span style="font-size: 0.85em; color: #666;"> on ${c.time}</span><br/>
         <span>${c.text}</span>
       </div>
-      ${canDelete ? <button onclick="deleteComment('${sectionId}', '${c.id}')">Delete</button> : ''}
-    ;
+      ${canDelete ? `<button onclick="deleteComment('${sectionId}', '${c.id}')">Delete</button>` : ''}
+    `;
 
     list.appendChild(div);
   });
