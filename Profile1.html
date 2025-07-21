@@ -375,20 +375,6 @@ if (retakeBtn) {
 
       });
 
-      // Reset userData
-      userSkills.userData = {
-        canTakeTest: true,
-        testLevel: 0,       // Force them to test again
-        actualLevel: 0
-      };
-
-      localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
-      alert(`${profile.name} is now required to retake their skills test.`);
-    } else {
-      alert(`No skill data found for ${profile.name}.`);
-    }
-  };
-}
 
         if (editBtn) editBtn.onclick = () => renderCreateForm(profile);
         if (deleteBtn) deleteBtn.onclick = () => {
