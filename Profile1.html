@@ -355,27 +355,24 @@ function getUserLevel(name) {
 
         
         const [editBtn, deleteBtn, retakeBtn] = card.querySelectorAll('.icon-btn');
-        if (retakeBtn) {
+if (retakeBtn) {
   retakeBtn.onclick = () => {
-    const confirmReset = confirm(`Require ${profile.name} to retake all completed tests?`);
+    const confirmReset = confirm(`Require ${profile.name} to retake their completed skills test?`);
     if (!confirmReset) return;
 
     const allHotelData = JSON.parse(localStorage.getItem('hotelSkillsData') || '{}');
     const userSkills = allHotelData[profile.name];
     if (userSkills) {
-      // Reset test state
-      Object.keys(userSkills).forEach(key => {
-        if (key === 'userData') return;
-        const category = userSkills[key];
-        if (category.items) {
-          category.items.forEach(item => {
-            if (item.completed) {
-              item.locked = false; // unlock previously locked
-              item.completed = false; // mark as not completed
-              category.totalExp = 0;
-            }
-          });
-        }
+      userSkills.userData = userSkills.userData || {};
+      userSkills.userData.requiresRetest = true;
+      localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+      alert(`${profile.name} is now required to retake a skills test.`);
+    } else {
+      alert(`No skill data found for ${profile.name}.`);
+    }
+  };
+}
+
       });
 
       // Reset userData
