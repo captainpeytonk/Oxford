@@ -205,6 +205,7 @@
 <div class="container">
   <div class="sidebar">
     <button class="tab-button active" onclick="showTab('reception')">Reception</button>
+    <button class="tab-button" onclick="showTab('cloudbeds')">Cloudbeds</button>
     <button class="tab-button" onclick="showTab('folding')">Folding</button>
   </div>
 
@@ -239,16 +240,16 @@
         <img src="media/folding.jpg" alt="Folding Example" />
 
         <!-- Description -->
-        <div class="description-box" data-id="desc-reception">
+        <div class="description-box" data-id="desc-cloudbeds">
           <textarea placeholder="Describe this video..."></textarea>
-          <button onclick="saveDescription('desc-reception')">Save Description</button>
+          <button onclick="saveDescription('desc-cloudbeds')">Save Description</button>
         </div>
 
         <!-- Comments -->
-        <div class="comment-section" data-id="comments-reception">
+        <div class="comment-section" data-id="comments-cloudbeds">
           <div class="comments-list"></div>
           <textarea placeholder="Post a comment..."></textarea>
-          <button onclick="postComment('comments-reception')">Post</button>
+          <button onclick="postComment('comments-cloudbeds')">Post</button>
         </div>
       </div>
     </div>
