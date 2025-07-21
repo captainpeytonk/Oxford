@@ -155,6 +155,7 @@
       border-radius: 6px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
 
     .comment button {
@@ -232,8 +233,8 @@
       </div>
     </div>
 
-        <!-- Cloudbeds -->
-    <div id="cloudbeds" class="tab-content active">
+    <!-- Cloudbeds -->
+    <div id="cloudbeds" class="tab-content">
       <div class="training-card">
         <h2>Cloudbeds Training</h2>
         <video src="media/training.mp4" controls></video>
@@ -254,7 +255,6 @@
       </div>
     </div>
 
-
     <!-- Folding -->
     <div id="folding" class="tab-content">
       <div class="training-card">
@@ -269,9 +269,9 @@
 
         <!-- Comments -->
         <div class="comment-section" data-id="comments-folding">
+          <div class="comments-list"></div>
           <textarea placeholder="Post a comment..."></textarea>
           <button onclick="postComment('comments-folding')">Post</button>
-          <div class="comments-list"></div>
         </div>
       </div>
     </div>
@@ -327,7 +327,7 @@
     });
 
     const comment = {
-      id: `${sectionId}-${Date.now()}`,
+      id: sectionId + '-' + Date.now(),
       text: value,
       user: loggedInUser.name,
       time: timestamp
@@ -348,33 +348,46 @@
     renderComments(sectionId);
   }
 
-function renderComments(sectionId) {
-  const section = document.querySelector(`[data-id="${sectionId}"]`);
-  const list = section.querySelector('.comments-list');
-  list.innerHTML = '';
+  function renderComments(sectionId) {
+    const section = document.querySelector(`[data-id="${sectionId}"]`);
+    const list = section.querySelector('.comments-list');
+    list.innerHTML = '';
 
-  const comments = JSON.parse(localStorage.getItem(sectionId)) || [];
-  const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    const comments = JSON.parse(localStorage.getItem(sectionId)) || [];
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
 
-  comments.forEach(c => {
+    comments.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'comment';
+
+      const canDelete = loggedInUser &&
+        (loggedInUser.name === c.user || loggedInUser.role === 'manager');
+
+      // Create comment content div
+      const contentDiv = document.createElement('div');
+      contentDiv.innerHTML = 
+        `<strong>${escapeHtml(c.user)}</strong> <span style="font-size: 0.85em; color: #666;">on ${escapeHtml(c.time)}</span><br/>` +
+        `<span>${escapeHtml(c.text)}</span>`;
+
+      div.appendChild(contentDiv);
+
+      if (canDelete) {
+        const btn = document.createElement('button');
+        btn.textContent = 'Delete';
+        btn.onclick = () => deleteComment(sectionId, c.id);
+        div.appendChild(btn);
+      }
+
+      list.appendChild(div);
+    });
+  }
+
+  // Helper to escape HTML in user inputs to prevent injection
+  function escapeHtml(text) {
     const div = document.createElement('div');
-    div.className = 'comment';
-
-    const canDelete = loggedInUser &&
-      (loggedInUser.name === c.user || loggedInUser.role === 'manager');
-
-    div.innerHTML = `
-      <div>
-        <strong>${c.user}</strong>
-        <span style="font-size: 0.85em; color: #666;"> on ${c.time}</span><br/>
-        <span>${c.text}</span>
-      </div>
-      ${canDelete ? `<button onclick="deleteComment('${sectionId}', '${c.id}')">Delete</button>` : ''}
-    `;
-
-    list.appendChild(div);
-  });
-}
+    div.textContent = text;
+    return div.innerHTML;
+  }
 
   function loadAllContent() {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
