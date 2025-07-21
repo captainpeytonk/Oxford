@@ -214,6 +214,7 @@
       <div class="training-card">
         <h2>Reception Training</h2>
         <video src="media/training.mp4" controls></video>
+        <img src="media/folding.jpg" alt="Folding Example" />
 
         <!-- Description -->
         <div class="description-box" data-id="desc-reception">
@@ -229,6 +230,29 @@
         </div>
       </div>
     </div>
+
+        <!-- Cloudbeds -->
+    <div id="cloudbeds" class="tab-content active">
+      <div class="training-card">
+        <h2>Cloudbeds Training</h2>
+        <video src="media/training.mp4" controls></video>
+        <img src="media/folding.jpg" alt="Folding Example" />
+
+        <!-- Description -->
+        <div class="description-box" data-id="desc-reception">
+          <textarea placeholder="Describe this video..."></textarea>
+          <button onclick="saveDescription('desc-reception')">Save Description</button>
+        </div>
+
+        <!-- Comments -->
+        <div class="comment-section" data-id="comments-reception">
+          <div class="comments-list"></div>
+          <textarea placeholder="Post a comment..."></textarea>
+          <button onclick="postComment('comments-reception')">Post</button>
+        </div>
+      </div>
+    </div>
+
 
     <!-- Folding -->
     <div id="folding" class="tab-content">
