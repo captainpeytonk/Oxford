@@ -298,7 +298,7 @@
       alert('Only managers can edit descriptions.');
       return;
     }
-    const container = document.querySelector([data-id="${id}"]);
+    const container = document.querySelector([data-id="${id}"]`);
     const textarea = container.querySelector('textarea');
     localStorage.setItem(id, textarea.value);
     textarea.style.backgroundColor = '#e0ffe0';
@@ -327,7 +327,7 @@
     });
 
     const comment = {
-      id: ${sectionId}-${Date.now()},
+      id: sectionId + '-' + Date.now(),
       text: value,
       user: loggedInUser.name,
       time: timestamp
