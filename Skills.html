@@ -684,6 +684,84 @@ refreshTestEligibility();
     showMainPage();
   }
 
+    if (userData.requiresRetest) {
+    const retestBtn = document.createElement('button');
+    retestBtn.textContent = "🌀 Retake Skill Test";
+    retestBtn.className = "test-btn";
+    retestBtn.onclick = showRetest;
+
+    const headerSide = document.querySelector(".header-side");
+    headerSide.appendChild(retestBtn);
+  }
+function showRetest() {
+  const popup = document.getElementById('testPopup');
+  const testContent = document.getElementById('testContent');
+  const testProgress = document.getElementById('testProgress');
+
+  // Retest only locked items
+  const testItems = [];
+
+  Object.keys(skillsData).forEach(category => {
+    if (category === 'userData') return;
+    const skill = skillsData[category];
+    skill.items?.forEach(item => {
+      if (item.locked) {
+        testItems.push({ name: item.name, category });
+      }
+    });
+  });
+
+  testContent.innerHTML = '';
+  testItems.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.className = 'test-item';
+    div.innerHTML = `
+      <label>
+        <input type="checkbox" onchange="updateTestProgress()" data-test-item="${index}">
+        ${item.name} (${item.category})
+      </label>
+    `;
+    testContent.appendChild(div);
+  });
+
+  testProgress.textContent = `Progress: 0/${testItems.length}`;
+  document.getElementById('testSubmit').onclick = submitRetest;
+  document.getElementById('testSubmit').disabled = true;
+
+  popup.style.display = 'flex';
+}
+
+function submitRetest() {
+  const checkboxes = document.querySelectorAll('#testContent input[type="checkbox"]');
+  const checked = document.querySelectorAll('#testContent input[type="checkbox"]:checked');
+  const passwordInput = document.getElementById('managerApprovalPassword');
+  const enteredPassword = passwordInput.value.trim();
+
+  const profiles = JSON.parse(localStorage.getItem('profiles') || '[]');
+  const managerProfiles = profiles.filter(p => p.role === 'manager');
+  const managerApproved = managerProfiles.some(manager => manager.password === enteredPassword);
+
+  if (!managerApproved) {
+    alert("Manager password is required to submit the retest.");
+    return;
+  }
+
+  if (checked.length !== checkboxes.length) {
+    alert("Please complete all retest items.");
+    return;
+  }
+
+  // Clear retest flag
+  userData.requiresRetest = false;
+  allHotelData[username].userData = userData;
+  localStorage.setItem('hotelSkillsData', JSON.stringify(allHotelData));
+
+  closeTestPopup();
+  alert("Retest completed successfully!");
+  location.reload(); // force reload to hide retest button
+}
+
+
   // Start the application
   init();
 </script>
