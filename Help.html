@@ -5,11 +5,7 @@
   <title>Hostel Training Help</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -83,17 +79,11 @@
       margin-bottom: 20px;
     }
 
-    .training-card:hover {
-      transform: translateY(-5px);
-    }
+    .training-card:hover { transform: translateY(-5px); }
 
-    .training-card h2 {
-      margin-bottom: 15px;
-      font-size: 1.5rem;
-    }
+    .training-card h2 { margin-bottom: 15px; font-size: 1.5rem; }
 
-    video,
-    img {
+    video, img {
       width: 100%;
       border-radius: 6px;
       margin-top: 10px;
@@ -173,33 +163,23 @@
     }
 
     @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-
+      .container { flex-direction: column; }
       .sidebar {
         flex-direction: row;
         overflow-x: auto;
       }
-
       .tab-button {
         flex: 1;
         text-align: center;
         padding: 10px;
         font-size: 14px;
       }
-
-      .content-area {
-        padding: 20px;
-      }
+      .content-area { padding: 20px; }
     }
   </style>
 </head>
 <body>
-
 <h1>Hostel Training Help</h1>
-
-<!-- Link to Profile page -->
 <p><a href="Profile1.html">To Profile</a></p>
 
 <div class="container">
@@ -208,77 +188,27 @@
     <button class="tab-button" onclick="showTab('cloudbeds')">Cloudbeds</button>
     <button class="tab-button" onclick="showTab('folding')">Folding</button>
   </div>
-
   <div class="content-area">
-    <!-- Reception -->
-    <div id="reception" class="tab-content active">
-      <div class="training-card">
-        <h2>Reception Training</h2>
-        <video src="media/training.mp4" controls></video>
-        <img src="media/folding.jpg" alt="Folding Example" />
-
-        <!-- Description -->
-        <div class="description-box" data-id="desc-reception">
-          <textarea placeholder="Describe this video..."></textarea>
-          <button onclick="saveDescription('desc-reception')">Save Description</button>
-        </div>
-
-        <!-- Comments -->
-        <div class="comment-section" data-id="comments-reception">
-          <div class="comments-list"></div>
-          <textarea placeholder="Post a comment..."></textarea>
-          <button onclick="postComment('comments-reception')">Post</button>
-        </div>
-      </div>
-    </div>
-
-        <!-- Cloudbeds -->
-    <div id="cloudbeds" class="tab-content active">
-      <div class="training-card">
-        <h2>Cloudbeds Training</h2>
-        <video src="media/training.mp4" controls></video>
-        <img src="media/folding.jpg" alt="Folding Example" />
-
-        <!-- Description -->
-        <div class="description-box" data-id="desc-cloudbeds">
-          <textarea placeholder="Describe this video..."></textarea>
-          <button onclick="saveDescription('desc-cloudbeds')">Save Description</button>
-        </div>
-
-        <!-- Comments -->
-        <div class="comment-section" data-id="comments-cloudbeds">
-          <div class="comments-list"></div>
-          <textarea placeholder="Post a comment..."></textarea>
-          <button onclick="postComment('comments-cloudbeds')">Post</button>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- Folding -->
-    <div id="folding" class="tab-content">
-      <div class="training-card">
-        <h2>Folding Instructions</h2>
-        <img src="media/folding.jpg" alt="Folding Example" />
-
-        <!-- Description -->
-        <div class="description-box" data-id="desc-folding">
-          <textarea placeholder="Describe this image..."></textarea>
-          <button onclick="saveDescription('desc-folding')">Save Description</button>
-        </div>
-
-        <!-- Comments -->
-        <div class="comment-section" data-id="comments-folding">
-          <textarea placeholder="Post a comment..."></textarea>
-          <button onclick="postComment('comments-folding')">Post</button>
-          <div class="comments-list"></div>
-        </div>
-      </div>
-    </div>
+    <div id="reception" class="tab-content active"></div>
+    <div id="cloudbeds" class="tab-content"></div>
+    <div id="folding" class="tab-content"></div>
   </div>
 </div>
 
 <script>
+  const trainingData = {
+    reception: [
+      { id: "reception1", title: "Reception Video 1", type: "video", src: "media/reception1.mp4" },
+      { id: "reception2", title: "Reception Image 1", type: "image", src: "media/reception1.jpg" }
+    ],
+    cloudbeds: [
+      { id: "cloudbeds1", title: "Cloudbeds Tutorial", type: "video", src: "media/cloudbeds1.mp4" }
+    ],
+    folding: [
+      { id: "folding1", title: "Folding Guide", type: "image", src: "media/folding.jpg" }
+    ]
+  };
+
   function showTab(tabId) {
     const contents = document.querySelectorAll('.tab-content');
     const buttons = document.querySelectorAll('.tab-button');
@@ -290,6 +220,33 @@
 
     const clickedButton = Array.from(buttons).find(btn => btn.textContent.toLowerCase().includes(tabId));
     if (clickedButton) clickedButton.classList.add('active');
+  }
+
+  function createMediaCard(media) {
+    return `
+      <div class="training-card">
+        <h2>${media.title}</h2>
+        ${media.type === 'video' ? `<video src="${media.src}" controls></video>` : `<img src="${media.src}" alt="${media.title}" />`}
+        <div class="description-box" data-id="desc-${media.id}">
+          <textarea placeholder="Describe this ${media.type}..."></textarea>
+          <button onclick="saveDescription('desc-${media.id}')">Save Description</button>
+        </div>
+        <div class="comment-section" data-id="comments-${media.id}">
+          <div class="comments-list"></div>
+          <textarea placeholder="Post a comment..."></textarea>
+          <button onclick="postComment('comments-${media.id}')">Post</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderAllTraining() {
+    for (const category in trainingData) {
+      const container = document.getElementById(category);
+      container.innerHTML = trainingData[category]
+        .map(media => createMediaCard(media))
+        .join('');
+    }
   }
 
   function saveDescription(id) {
@@ -318,12 +275,8 @@
 
     const now = new Date();
     const timestamp = now.toLocaleString('default', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: true
     });
 
     const comment = {
@@ -334,7 +287,7 @@
     };
 
     let comments = JSON.parse(localStorage.getItem(sectionId)) || [];
-    comments.unshift(comment); // Newest first
+    comments.unshift(comment);
     localStorage.setItem(sectionId, JSON.stringify(comments));
 
     renderComments(sectionId);
@@ -348,38 +301,33 @@
     renderComments(sectionId);
   }
 
-function renderComments(sectionId) {
-  const section = document.querySelector(`[data-id="${sectionId}"]`);
-  const list = section.querySelector('.comments-list');
-  list.innerHTML = '';
-
-  const comments = JSON.parse(localStorage.getItem(sectionId)) || [];
-  const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
-
-  comments.forEach(c => {
-    const div = document.createElement('div');
-    div.className = 'comment';
-
-    const canDelete = loggedInUser &&
-      (loggedInUser.name === c.user || loggedInUser.role === 'manager');
-
-    div.innerHTML = `
-      <div>
-        <strong>${c.user}</strong>
-        <span style="font-size: 0.85em; color: #666;"> on ${c.time}</span><br/>
-        <span>${c.text}</span>
-      </div>
-      ${canDelete ? `<button onclick="deleteComment('${sectionId}', '${c.id}')">Delete</button>` : ''}
-    `;
-
-    list.appendChild(div);
-  });
-}
-
-  function loadAllContent() {
+  function renderComments(sectionId) {
+    const section = document.querySelector(`[data-id="${sectionId}"]`);
+    const list = section.querySelector('.comments-list');
+    list.innerHTML = '';
+    const comments = JSON.parse(localStorage.getItem(sectionId)) || [];
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
 
-    // Load descriptions
+    comments.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'comment';
+      const canDelete = loggedInUser && (loggedInUser.name === c.user || loggedInUser.role === 'manager');
+      div.innerHTML = `
+        <div>
+          <strong>${c.user}</strong>
+          <span style="font-size: 0.85em; color: #666;"> on ${c.time}</span><br/>
+          <span>${c.text}</span>
+        </div>
+        ${canDelete ? `<button onclick="deleteComment('${sectionId}', '${c.id}')">Delete</button>` : ''}
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function loadAllContent() {
+    renderAllTraining();
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+
     document.querySelectorAll('.description-box').forEach(section => {
       const id = section.getAttribute('data-id');
       const textarea = section.querySelector('textarea');
@@ -398,15 +346,11 @@ function renderComments(sectionId) {
       }
     });
 
-    // Load and render comments
     document.querySelectorAll('.comment-section').forEach(section => {
       const id = section.getAttribute('data-id');
       renderComments(id);
     });
   }
-
-  window.onload = loadAllContent;
 </script>
-
 </body>
 </html>
