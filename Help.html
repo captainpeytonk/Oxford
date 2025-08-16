@@ -208,6 +208,9 @@
     <button class="tab-button active" data-tab="reception" onclick="showTab('reception')">Reception</button>
     <button class="tab-button" data-tab="cloudbeds" onclick="showTab('cloudbeds')">Cloudbeds</button>
     <button class="tab-button" data-tab="folding" onclick="showTab('folding')">Folding</button>
+    <button class="tab-button" data-tab="beds/cleaning" onclick="showTab('beds/cleaning')">Beds/Cleaning</button>
+    <button class="tab-button" data-tab="firetraining" onclick="showTab('firetraining')">Fire Training</button>
+    <button class="tab-button" data-tab="extra" onclick="showTab('extra')">Extra</button>
   </div>
 
   <div class="content-area">
@@ -272,14 +275,14 @@
 
     <!-- Media 1 -->
     <video src="media/Cash Payments.mov" controls></video>
-    <div class="description-box" data-id="desc-reception-video1">
+    <div class="description-box" data-id="desc-cloudbed-video1">
       <textarea placeholder="Describe this video..."></textarea>
-      <button onclick="saveDescription('desc-reception-video1')">Save Description</button>
+      <button onclick="saveDescription('desc-cloudbed-video1')">Save Description</button>
     </div>
-    <div class="comment-section" data-id="comments-reception-video1">
+    <div class="comment-section" data-id="comments-cloudbed-video1">
       <div class="comments-list"></div>
       <textarea placeholder="Post a comment..."></textarea>
-      <button onclick="postComment('comments-reception-video1')">Post</button>
+      <button onclick="postComment('comments-cloudbed-video1')">Post</button>
     </div>
 
     <!-- Media 2 -->
@@ -395,6 +398,92 @@
   </div>
 </div>
 
+    <div id="beds/cleaning" class="tab-content active">
+  <div class="training-card">
+    <h2>Beds/cleaning</h2>
+
+    <!-- Media 1 -->
+    <video src="Beds.mov" controls></video>
+    <div class="description-box" data-id="desc-beds/cleaning-video1">
+      <textarea placeholder="Describe this video..."></textarea>
+      <button onclick="saveDescription('desc-beds/cleaning-video1')">Save Description</button>
+    </div>
+    <div class="comment-section" data-id="comments-reception-video1">
+      <div class="comments-list"></div>
+      <textarea placeholder="Post a comment..."></textarea>
+      <button onclick="postComment('comments-beds/cleaning-video1')">Post</button>
+    </div>
+
+    <!-- Media 2 -->
+    <video src="Cleaning the rooms.mov" controls></video>
+    <div class="description-box" data-id="desc-beds/cleaning-video2">
+      <textarea placeholder="Describe this video..."></textarea>
+      <button onclick="saveDescription('desc-beds/cleaning-video2')">Save Description</button>
+    </div>
+    <div class="comment-section" data-id="comments-beds/cleaning-video2">
+      <div class="comments-list"></div>
+      <textarea placeholder="Post a comment..."></textarea>
+      <button onclick="postComment('comments-beds/cleaning-video2')">Post</button>
+    </div>
+
+    <!-- Media 3 -->
+    <video src="media/Cleaning Toilets.mov" controls></video>
+    <div class="description-box" data-id="desc-beds/cleaning-video3">
+      <textarea placeholder="Describe this video..."></textarea>
+      <button onclick="saveDescription('desc-beds/cleaning-video3')">Save Description</button>
+    </div>
+    <div class="comment-section" data-id="comments-beds/cleaning-video3">
+      <div class="comments-list"></div>
+      <textarea placeholder="Post a comment..."></textarea>
+      <button onclick="postComment('comments-beds/cleaning-video3')">Post</button>
+
+     <video src="media/Cleaning Showers.mov" controls></video>
+    <div class="description-box" data-id="desc-beds/cleaning-video4">
+      <textarea placeholder="Describe this video..."></textarea>
+      <button onclick="saveDescription('desc-beds/cleaning-video4')">Save Description</button>
+    </div>
+    <div class="comment-section" data-id="comments-beds/cleaning-video4">
+      <div class="comments-list"></div>
+      <textarea placeholder="Post a comment..."></textarea>
+      <button onclick="postComment('comments-beds/cleaning-video4')">Post</button>
+    </div>
+  </div>
+</div>
+
+<div id="firetraining" class="tab-content active">
+  <div class="training-card">
+    <h2>Fire Training</h2>
+    
+        <img src="media/Shower Towels.jpg" alt="Folding Example" />
+    <div class="description-box" data-id="desc-folding-image1">
+      <textarea placeholder="Describe this image..."></textarea>
+      <button onclick="saveDescription('desc-folding-image1')">Save Description</button>
+    </div>
+    <div class="comment-section" data-id="comments-folding-image1">
+      <div class="comments-list"></div>
+      <textarea placeholder="Post a comment..."></textarea>
+      <button onclick="postComment('comments-folding-image1')">Post</button>
+    </div>
+  </div>
+</div>
+
+    <div id="extra" class="tab-content active">
+  <div class="training-card">
+    <h2>Extra</h2>
+    
+        <img src="media/Shower Towels.jpg" alt="Folding Example" />
+    <div class="description-box" data-id="desc-folding-image1">
+      <textarea placeholder="Describe this image..."></textarea>
+      <button onclick="saveDescription('desc-folding-image1')">Save Description</button>
+    </div>
+    <div class="comment-section" data-id="comments-folding-image1">
+      <div class="comments-list"></div>
+      <textarea placeholder="Post a comment..."></textarea>
+      <button onclick="postComment('comments-folding-image1')">Post</button>
+    </div>
+  </div>
+</div>
+      
 <script>
   function showTab(tabId) {
     const contents = document.querySelectorAll('.tab-content');
